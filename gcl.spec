@@ -15,7 +15,6 @@ BuildRequires:  tetex-dvipdfm
 BuildRequires:	tcl tcl-devel tk tk-devel
 BuildRequires:	emacs-X11
 BuildRequires:  texinfo
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 GCL is a Common Lisp currently compliant with the CLtL1 standard. Lisp
