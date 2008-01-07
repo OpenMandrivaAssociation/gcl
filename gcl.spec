@@ -3,16 +3,18 @@
 Summary:	GNU Common Lisp
 Name:		gcl
 Version:	%{gclver}
-Release:	%mkrel 5
-License:	LGPL
+Release:	%mkrel 6
+License:	GPLv2+
 Group:		Development/Other
 Source0:	ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.bz2
 Patch0:		gcl-%{version}-conf.patch
 URL:		http://savannah.gnu.org/projects/gcl
-BuildRequires:	automake1.7
 BuildRequires:	binutils-devel
 BuildRequires:  tetex-dvipdfm
-BuildRequires:	tcl tcl-devel tk tk-devel
+BuildRequires:	tcl
+BuildRequires:	tcl-devel
+BuildRequires:	tk
+BuildRequires:	tk-devel
 BuildRequires:	emacs-X11
 BuildRequires:  texinfo
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
@@ -28,29 +30,26 @@ portability. Currently uses TCL/Tk as GUI.
 %patch0 -p1 -b .config
 
 %build
-WANT_AUTOCONF_2_1=1
-aclocal-1.7
-autoconf
-%configure2_5x --enable-notify=no --enable-ansi
+%configure2_5x --enable-notify=no --enable-ansi --enable-emacsdir=%{_datadir}/emacs/site-lisp
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
+rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_mandir}/man1
 (cd info
 make gcl-tk.dvi gcl-si.dvi
 dvipdfm gcl-tk.dvi
 dvipdfm gcl-si.dvi)
-%makeinstall DESTDIR=$RPM_BUILD_ROOT \
+%makeinstall DESTDIR=%{buildroot} \
 	prefix=%{_prefix}
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-rm -rf $RPM_BUILD_ROOT%{_prefix}/lib/gcl-%{gclver}/info
-rm -rf $RPM_BUILD_ROOT%{_datadir}/doc
-install -m 644 man/man1/gcl.1 $RPM_BUILD_ROOT%{_mandir}/man1
-find $RPM_BUILD_ROOT%{_datadir} -type f -perm 640 -print0 | xargs -0 chmod 644 || :
-find $RPM_BUILD_ROOT%{_datadir} -type f -perm 750 -print0 | xargs -0 chmod 644 || :
-find $RPM_BUILD_ROOT%{_prefix}/lib/gcl-%{version} -type f -perm 750 -print0 | xargs -0 chmod 755 || :
-find $RPM_BUILD_ROOT%{_prefix}/lib/gcl-%{version} -type f -perm 640 -print0 | xargs -0 chmod 644 || :
+rm -f %{buildroot}%{_infodir}/dir
+rm -rf %{buildroot}%{_prefix}/lib/gcl-%{gclver}/info
+rm -rf %{buildroot}%{_datadir}/doc
+install -m 644 man/man1/gcl.1 %{buildroot}%{_mandir}/man1
+find %{buildroot}%{_datadir} -type f -perm 640 -print0 | xargs -0 chmod 644 || :
+find %{buildroot}%{_datadir} -type f -perm 750 -print0 | xargs -0 chmod 644 || :
+find %{buildroot}%{_prefix}/lib/gcl-%{version} -type f -perm 750 -print0 | xargs -0 chmod 755 || :
+find %{buildroot}%{_prefix}/lib/gcl-%{version} -type f -perm 640 -print0 | xargs -0 chmod 644 || :
 chmod 644 readme faq ChangeLog
 
 %post
@@ -64,7 +63,7 @@ chmod 644 readme faq ChangeLog
 %_remove_install_info gcl-tk.info
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -81,5 +80,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/emacs/*
 %{_infodir}/gcl*.info*
 %{_mandir}/man1/*
-
 
