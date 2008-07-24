@@ -3,7 +3,7 @@
 Summary:	GNU Common Lisp
 Name:		gcl
 Version:	%{gclver}
-Release:	%mkrel 6
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		Development/Other
 Source0:	ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.bz2
