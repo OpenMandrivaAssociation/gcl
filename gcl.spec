@@ -7,7 +7,7 @@ Release:	%mkrel 8
 License:	GPLv2+
 Group:		Development/Other
 Source0:	ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.bz2
-Patch0:		gcl-%{version}-conf.patch
+Patch1:		gcl_2.6.7-44.diff
 URL:		http://savannah.gnu.org/projects/gcl
 BuildRequires:	binutils-devel
 BuildRequires:  tetex-dvipdfm
@@ -27,10 +27,15 @@ portability. Currently uses TCL/Tk as GUI.
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1 -b .config
+%patch1 -p1 -b .debian
 
 %build
-%configure2_5x --enable-notify=no --enable-ansi --enable-emacsdir=%{_datadir}/emacs/site-lisp
+%configure2_5x --enable-notify=no --enable-ansi --enable-emacsdir=%{_datadir}/emacs/site-lisp \
+		--enable-locbfd \
+		--disable-dynsysbfd \
+		--disable-statsysbfd \
+		--enable-dynsysgmp
+
 make
 
 %install
@@ -77,6 +82,7 @@ rm -rf %{buildroot}
 %{_prefix}/lib/gcl-%{gclver}/unixport
 %{_prefix}/lib/gcl-%{gclver}/clcs
 %{_prefix}/lib/gcl-%{gclver}/pcl
+%{_prefix}/lib/gcl-%{gclver}/xgcl-2
 %{_datadir}/emacs/*
 %{_infodir}/gcl*.info*
 %{_mandir}/man1/*
