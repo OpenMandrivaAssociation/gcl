@@ -3,7 +3,7 @@
 Summary:	GNU Common Lisp
 Name:		gcl
 Version:	%{gclver}
-Release:	%mkrel 9
+Release:	%mkrel 10
 License:	GPLv2+
 Group:		Development/Other
 Source0:	ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.bz2
@@ -11,9 +11,7 @@ Patch1:		gcl_2.6.7-44.diff
 URL:		http://savannah.gnu.org/projects/gcl
 BuildRequires:	binutils-devel
 BuildRequires:  tetex-dvipdfm
-BuildRequires:	tcl
 BuildRequires:	tcl-devel
-BuildRequires:	tk
 BuildRequires:	tk-devel
 BuildRequires:	emacs-X11
 BuildRequires:  texinfo
