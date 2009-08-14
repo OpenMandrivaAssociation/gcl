@@ -36,7 +36,7 @@ Version:        %{preversion}.%{alphatag}
 Release:        %mkrel 1
 Summary:        GNU Common Lisp
 
-Group:          Development/Languages
+Group:          Development/Other
 License:        GPL+ and LGPLv2+
 URL:            http://www.gnu.org/software/gcl/
 # The source for this package was pulled from upstream's CVS repository.  Use
