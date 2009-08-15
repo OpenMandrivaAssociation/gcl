@@ -114,6 +114,7 @@ BuildRequires:  binutils-devel
 BuildRequires:  tk-devel
 BuildRequires:  tcl-devel
 BuildRequires:  gmp-devel
+BuildRequires:  tetex-latex
 BuildRequires:  tetex-dvipdfm
 BuildRequires:  texinfo
 BuildRequires:  emacs, emacs-el
