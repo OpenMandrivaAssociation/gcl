@@ -123,9 +123,6 @@ Requires:       gcl-selinux
 Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
 
-# GCL currently fails to build on PPC64 platforms.  See bugzilla #480519.
-ExcludeArch: ppc64
-
 %description
 GCL is a Common Lisp currently compliant with the ANSI standard.  Lisp
 compilation produces native code through the intermediary of the
