@@ -144,7 +144,7 @@ facile portability. Currently uses TCL/Tk as GUI.
 
 
 %package emacs
-Group:          Development/Languages
+Group:          Development/Other
 Summary:        Emacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}, emacs >= %{emacs_version}
 BuildArch:      noarch
@@ -153,7 +153,7 @@ BuildArch:      noarch
 Emacs mode for interacting with GCL
 
 %package emacs-el
-Group:          Development/Languages
+Group:          Development/Other
 Summary:        Source for Emacs mode for interacting with GCL
 Requires:       %{name}-emacs = %{version}-%{release}
 BuildArch:      noarch
@@ -163,7 +163,7 @@ Source Elisp code for Emacs mode for interacting with GCL
 
 
 %package xemacs
-Group:          Development/Languages
+Group:          Development/Other
 Summary:        XEmacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}
 Requires:       xemacs >= %{xemacs_version}, xemacs-extras
@@ -173,7 +173,7 @@ BuildArch:      noarch
 XEmacs mode for interacting with GCL
 
 %package xemacs-el
-Group:          Development/Languages
+Group:          Development/Other
 Summary:        Source for XEmacs mode for interacting with GCL
 Requires:       %{name}-xemacs = %{version}-%{release}
 BuildArch:      noarch
@@ -184,7 +184,7 @@ Source Elisp code for XEmacs mode for interacting with GCL
 
 %if %{with_selinux}
 %package selinux
-Group:          Development/Languages
+Group:          Development/Other
 Summary:        SELinux policy for GCL images
 Requires(post): policycoreutils
 Requires(postun): policycoreutils
