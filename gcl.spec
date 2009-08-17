@@ -119,7 +119,7 @@ BuildRequires:  gmp-devel
 BuildRequires:  tetex-latex
 BuildRequires:  tetex-dvipdfm
 BuildRequires:  texinfo
-BuildRequires:  emacs, emacs-el
+BuildRequires:  emacs-bin, emacs-el
 BuildRequires:  xemacs, xemacs-devel
 %if %{with_selinux}
 BuildRequires:  selinux-policy
