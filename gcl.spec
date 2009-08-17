@@ -1,6 +1,8 @@
 # minor adptation of fedora package:
 #	http://cvs.fedoraproject.org/viewvc/rpms/gcl/devel/
 
+%define	with_selinux	0
+
 # -fstack-protector leads to segfaults because GCL uses its own conflicting
 # stack protection scheme.
 %define __global_cflags -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2
@@ -119,9 +121,15 @@ BuildRequires:  tetex-dvipdfm
 BuildRequires:  texinfo
 BuildRequires:  emacs, emacs-el
 BuildRequires:  xemacs, xemacs-devel
+%if %{with_selinux}
 BuildRequires:  selinux-policy
+%endif
 BuildRequires:	x11-server-common
+
+%if %{with_selinux}
 Requires:       gcl-selinux
+%endif
+
 Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
 
@@ -174,6 +182,7 @@ BuildArch:      noarch
 Source Elisp code for XEmacs mode for interacting with GCL
 
 
+%if %{with_selinux}
 %package selinux
 Group:          Development/Languages
 Summary:        SELinux policy for GCL images
@@ -184,6 +193,7 @@ Requires(postun): policycoreutils
 SELinux policy for GCL images.  All programs that dump GCL images to be run on
 SELinux-enabled hosts should Require this package, and give the image the type
 gcl_exec_t.
+%endif
 
 
 %prep
@@ -194,7 +204,9 @@ gcl_exec_t.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%if %{with_selinux}
 %patch5 -p1
+%endif
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
@@ -233,10 +245,11 @@ make -C info gcl.info
 cd xgcl-2
 pdflatex dwdoc.tex
 
+%if %{with_selinux}
 # Build the SELinux policy
 cd ../selinux
 make -f %{_datadir}/selinux/devel/Makefile
-
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -280,9 +293,11 @@ xemacs -batch -no-site-file -eval "(push \"`pwd`\" load-path)" \
   -f batch-byte-compile *.el
 popd
 
+%if %{with_selinux}
 # Save the policy file away for later installation
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/selinux/packages/gcl
 cp -p selinux/gcl.pp $RPM_BUILD_ROOT%{_datadir}/selinux/packages/gcl
+%endif
 
 # The image has garbage strings containing RPM_BUILD_ROOT
 export QA_SKIP_BUILD_ROOT=1
@@ -305,10 +320,11 @@ rm -f /tmp/gazonk_* /tmp/gcl_*
   2>/dev/null || :
 
 
+%if %{with_selinux}
 %post selinux
 /usr/sbin/semodule -i %{_datadir}/selinux/packages/gcl/gcl.pp || :
 /sbin/fixfiles -R gcl restore || :
-
+%endif
 
 %postun
 if [ $1 = 0 ]; then
@@ -318,11 +334,12 @@ if [ $1 = 0 ]; then
 fi
 
 
+%if %{with_selinux}
 %postun selinux
 if [ $1 = 0 ]; then
     /usr/sbin/semodule -r gcl || :
 fi
-
+%endif
 
 %files
 %defattr(-,root,root,-)
@@ -356,6 +373,8 @@ fi
 %defattr(-,root,root,-)
 %{xemacs_lispdir}/gcl/*.el
 
+%if %{with_selinux}
 %files selinux
 %defattr(-,root,root,-)
 %{_datadir}/selinux/packages/gcl
+%endif
