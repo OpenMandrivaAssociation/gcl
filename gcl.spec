@@ -124,6 +124,9 @@ Requires:       gcl-selinux
 Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
 
+# GCL currently fails to build on PPC64 platforms.  See bugzilla #480519.
+ExcludeArch: ppc64
+
 %description
 GCL is a Common Lisp currently compliant with the ANSI standard.  Lisp
 compilation produces native code through the intermediary of the
@@ -135,6 +138,7 @@ facile portability. Currently uses TCL/Tk as GUI.
 Group:          Development/Languages
 Summary:        Emacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}, emacs >= %{emacs_version}
+BuildArch:      noarch
 
 %description emacs
 Emacs mode for interacting with GCL
@@ -143,6 +147,7 @@ Emacs mode for interacting with GCL
 Group:          Development/Languages
 Summary:        Source for Emacs mode for interacting with GCL
 Requires:       %{name}-emacs = %{version}-%{release}
+BuildArch:      noarch
 
 %description emacs-el
 Source Elisp code for Emacs mode for interacting with GCL
@@ -153,6 +158,7 @@ Group:          Development/Languages
 Summary:        XEmacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}
 Requires:       xemacs >= %{xemacs_version}, xemacs-extras
+BuildArch:      noarch
 
 %description xemacs
 XEmacs mode for interacting with GCL
@@ -161,6 +167,7 @@ XEmacs mode for interacting with GCL
 Group:          Development/Languages
 Summary:        Source for XEmacs mode for interacting with GCL
 Requires:       %{name}-xemacs = %{version}-%{release}
+BuildArch:      noarch
 
 %description xemacs-el
 Source Elisp code for XEmacs mode for interacting with GCL
