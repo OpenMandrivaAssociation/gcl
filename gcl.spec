@@ -120,6 +120,7 @@ BuildRequires:  texinfo
 BuildRequires:  emacs, emacs-el
 BuildRequires:  xemacs, xemacs-devel
 BuildRequires:  selinux-policy
+BuildRequires:	update-alternatives
 Requires:       gcl-selinux
 Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
