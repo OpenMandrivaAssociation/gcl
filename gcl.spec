@@ -35,7 +35,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 2
+Release:        %mkrel 3
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
@@ -147,7 +147,8 @@ facile portability. Currently uses TCL/Tk as GUI.
 Group:          Development/Other
 Summary:        Emacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}, emacs >= %{emacs_version}
-BuildArch:      noarch
+# Don't make subpackages noarch as our bs does not deal with this yet
+#BuildArch:      noarch
 
 %description emacs
 Emacs mode for interacting with GCL
@@ -156,7 +157,7 @@ Emacs mode for interacting with GCL
 Group:          Development/Other
 Summary:        Source for Emacs mode for interacting with GCL
 Requires:       %{name}-emacs = %{version}-%{release}
-BuildArch:      noarch
+#BuildArch:      noarch
 
 %description emacs-el
 Source Elisp code for Emacs mode for interacting with GCL
@@ -167,7 +168,7 @@ Group:          Development/Other
 Summary:        XEmacs mode for interacting with GCL
 Requires:       %{name} = %{version}-%{release}
 Requires:       xemacs >= %{xemacs_version}, xemacs-extras
-BuildArch:      noarch
+#BuildArch:      noarch
 
 %description xemacs
 XEmacs mode for interacting with GCL
@@ -176,7 +177,7 @@ XEmacs mode for interacting with GCL
 Group:          Development/Other
 Summary:        Source for XEmacs mode for interacting with GCL
 Requires:       %{name}-xemacs = %{version}-%{release}
-BuildArch:      noarch
+#BuildArch:      noarch
 
 %description xemacs-el
 Source Elisp code for XEmacs mode for interacting with GCL
