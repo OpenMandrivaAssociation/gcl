@@ -35,7 +35,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 3
+Release:        %mkrel 4
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
@@ -233,6 +233,10 @@ chmod a+x mp/gcclab o/egrep-def utils/replace xbin/*
 
 
 %build
+# -fstack-protector leads to segfaults because GCL uses its own conflicting
+# stack protection scheme.
+export CFLAGS=`echo %{optflags} | sed -e 's/-fstack-protector --param=ssp-buffer-size=4//'`
+export CXXFLAGS="$CFLAGS"
 %configure --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir} \
   --disable-statsysbfd --enable-dynsysbfd
