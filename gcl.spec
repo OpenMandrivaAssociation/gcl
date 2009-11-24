@@ -35,7 +35,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 4
+Release:        %mkrel 5
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
