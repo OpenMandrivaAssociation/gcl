@@ -237,8 +237,7 @@ chmod a+x mp/gcclab o/egrep-def utils/replace xbin/*
 %build
 # -fstack-protector leads to segfaults because GCL uses its own conflicting
 # stack protection scheme.
-export CFLAGS=`echo %{optflags} | sed -e 's/-fstack-protector --param=ssp-buffer-size=4//'`
-export CXXFLAGS="$CFLAGS"
+%define _ssp_cflags %{nil}
 %configure --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir} \
 %if %{static_libbfd}
