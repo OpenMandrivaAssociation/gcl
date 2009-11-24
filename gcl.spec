@@ -3,6 +3,8 @@
 
 %define	with_selinux	0
 
+%define static_libbfd	1
+
 # -fstack-protector leads to segfaults because GCL uses its own conflicting
 # stack protection scheme.
 %define __global_cflags -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2
@@ -239,7 +241,11 @@ export CFLAGS=`echo %{optflags} | sed -e 's/-fstack-protector --param=ssp-buffer
 export CXXFLAGS="$CFLAGS"
 %configure --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir} \
+%if %{static_libbfd}
+  --enable-statsysbfd --disable-dynsysbfd
+%else
   --disable-statsysbfd --enable-dynsysbfd
+%endif
 # FIXME: %%{?_smp_mflags} breaks the build
 make 
 
