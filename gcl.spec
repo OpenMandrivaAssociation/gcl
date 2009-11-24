@@ -109,6 +109,9 @@ Patch13:        gcl-2.6.8-debuginfo.patch
 # Patch required to build in Mandriva
 Patch14:	gcl-2.6.8-tcl8.6.patch
 
+# Required to build with binutils-2.19.51.0.14
+Patch15:	gcl-2.6.8-plt.patch
+
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
 BuildRequires:  libxext-devel
@@ -219,6 +222,7 @@ gcl_exec_t.
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
