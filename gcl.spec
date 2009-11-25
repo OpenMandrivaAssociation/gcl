@@ -10,7 +10,7 @@
 %define __global_cflags -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2
 
 # Prerelease of 2.6.8
-%define alphatag 20090303cvs
+%define alphatag 20090701cvs 
 
 %define preversion	2.6.8
 
@@ -37,7 +37,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 5
+Release:        %mkrel 1
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
@@ -45,9 +45,9 @@ License:        GPL+ and LGPLv2+
 URL:            http://www.gnu.org/software/gcl/
 # The source for this package was pulled from upstream's CVS repository.  Use
 # the following commands to generate the tarball:
-#   cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
-#     -r Version_2_6_8pre -D 2009-03-04 -d gcl-2.6.8 gcl
-#   tar -cjvf gcl-2.6.8.tar.bz2 gcl-2.6.8
+#	cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
+#	-r Version_2_6_8pre -D 2009-07-02 -d gcl-2.6.8 gcl
+#	tar cjvf gcl-2.6.8.tar.bz2 gcl-2.6.8 
 Source0:        gcl-%{preversion}.tar.bz2
 Source1:        gcl.el
 # This is some info files that are needed for the DESCRIBE function to do
@@ -105,12 +105,20 @@ Patch12:        gcl-2.6.8-unrandomize.patch
 # This is a Fedora-specific patch.  Do not delete C files produced from D files
 # so they can be pulled into the debuginfo package.
 Patch13:        gcl-2.6.8-debuginfo.patch
+# The need for this patch was last communicated to upstream on 21 May 2009.
+# Without this patch, compilation fails due to conflicting type definitions
+# between glibc and Linux kernel headers. This patch prevents the kernel
+# headers from being used.
+Patch14:	gcl-2.6.8-asm-signal-h.patch 
+# This patch was last sent upstream on 13 Oct 2009. It fixes two bugs in the
+# reading of PLT information.
+Patch15:	gcl-2.6.8-plt.patch 
+# This patch was last sent upstream on 13 Oct 2009. It fixes several malformed
+# function prototypes involving an ellipsis.
+Patch16:	gcl-2.6.8-ellipsis.patch 
 
 # Patch required to build in Mandriva
-Patch14:	gcl-2.6.8-tcl8.6.patch
-
-# Required to build with binutils-2.19.51.0.14
-Patch15:	gcl-2.6.8-plt.patch
+Patch17:	gcl-2.6.8-tcl8.6.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
@@ -223,6 +231,8 @@ gcl_exec_t.
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
+%patch17 -p1
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
