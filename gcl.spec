@@ -1,5 +1,7 @@
 # minor adptation of fedora package:
 #	http://cvs.fedoraproject.org/viewvc/rpms/gcl/devel/
+%define _disable_ld_as_needed		1
+%define _disable_ld_no_undefined	1
 
 %define	with_selinux	0
 
@@ -37,7 +39,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 1
+Release:        %mkrel 2
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
@@ -119,6 +121,14 @@ Patch16:	gcl-2.6.8-ellipsis.patch
 
 # Patch required to build in Mandriva
 Patch17:	gcl-2.6.8-tcl8.6.patch
+
+#   There is a blank line after " .iplt"; it must be understood of gcl
+# will not read the symbol names and addresses under that section
+#   This patch also tries to make the logic of parsing the map file less
+# obfuscated so that it should be easier to find out problems in the future
+#   This patch is required at least for *system* binutils 2.19.51.0.14 and
+# binutils-2.20.51, as it handles different *system* ld output
+Patch18:	gcl-2.6.8-iplt.patch 
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
@@ -233,6 +243,7 @@ gcl_exec_t.
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
