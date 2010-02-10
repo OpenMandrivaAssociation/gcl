@@ -129,6 +129,7 @@ Patch17:	gcl-2.6.8-tcl8.6.patch
 #   This patch is required at least for *system* binutils 2.19.51.0.14 and
 # binutils-2.20.51, as it handles different *system* ld output
 Patch18:	gcl-2.6.8-iplt.patch 
+Patch19:	gcl-2.6.8-gmp-5.0.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
@@ -244,6 +245,7 @@ gcl_exec_t.
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p0 -b .gmp
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
@@ -263,7 +265,7 @@ chmod a+x mp/gcclab o/egrep-def utils/replace xbin/*
 # -fstack-protector leads to segfaults because GCL uses its own conflicting
 # stack protection scheme.
 %define _ssp_cflags %{nil}
-%configure --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
+%configure2_5x --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir} \
 %if %{static_libbfd}
   --enable-statsysbfd --disable-dynsysbfd
