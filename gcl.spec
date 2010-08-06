@@ -7,12 +7,8 @@
 
 %define static_libbfd	1
 
-# -fstack-protector leads to segfaults because GCL uses its own conflicting
-# stack protection scheme.
-%define __global_cflags -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2
-
 # Prerelease of 2.6.8
-%define alphatag 20090701cvs 
+%define alphatag 20100201cvs
 
 %define preversion	2.6.8
 
@@ -39,7 +35,7 @@
 
 Name:           gcl
 Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 3
+Release:        %mkrel 1
 Summary:        GNU Common Lisp
 
 Group:          Development/Other
@@ -48,7 +44,7 @@ URL:            http://www.gnu.org/software/gcl/
 # The source for this package was pulled from upstream's CVS repository.  Use
 # the following commands to generate the tarball:
 #	cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
-#	-r Version_2_6_8pre -D 2009-07-02 -d gcl-2.6.8 gcl
+#	-r Version_2_6_8pre -D 2010-02-02 -d gcl-2.6.8 gcl
 #	tar cjvf gcl-2.6.8.tar.bz2 gcl-2.6.8 
 Source0:        gcl-%{preversion}.tar.bz2
 Source1:        gcl.el
@@ -56,80 +52,71 @@ Source1:        gcl.el
 # something useful.  These files are present in CVS HEAD (i.e., the upcoming
 # 2.7.0 release), but are missing in the 2.6 branch.
 Source2:        gcl-2.6.8-info.tar.bz2
-# This patch was last sent upstream on 29 Dec 2008.  It makes GCL use the
-# sigprocmask API instead of the deprecated sigblock API.
-Patch0:         gcl-2.6.8-sigprocmask-linux.patch
+
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a file descriptor
 # leak, as well as combining 4 system calls into only 2 on an exec().
-Patch1:         gcl-2.6.8-fd-leak.patch
+Patch0:		gcl-2.6.8-fd-leak.patch
 # This patch was last sent upstream on 29 Dec 2008.  It updates one source file
 # from LaTeX 2.09 to LaTeX 2e, thereby eliminating LaTeX warnings about running
 # in compatibility mode.
-Patch2:         gcl-2.6.8-latex.patch
+Patch1:		gcl-2.6.8-latex.patch
 # This patch was last sent upstream on 29 Dec 2008.  It eliminates a few minor
 # texinfo warnings.
-Patch3:         gcl-2.6.8-texinfo.patch
+Patch2:		gcl-2.6.8-texinfo.patch
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a large number of
 # compile- and run-time problems with the Emacs interface code.
-Patch4:         gcl-2.6.8-elisp.patch
+Patch3:		gcl-2.6.8-elisp.patch
 # This patch was last sent upstream on 17 Jan 2009.  It adds support for
 # compiling and running on an SELinux-enabled host.
-Patch5:         gcl-2.6.8-selinux.patch
+Patch4:		gcl-2.6.8-selinux.patch
 # This patch was last sent upstream on 29 Dec 2008.  It uses the rename()
 # system call when it is available to avoid spawning a subshell and suffering a
 # context switch just to rename a file.
-Patch6:         gcl-2.6.8-rename.patch
+Patch5:		gcl-2.6.8-rename.patch
 # This patch was last sent upstream on 29 Dec 2008.  It eliminates a
 # compilation problem due to the fact that, at high optimization levels,
 # getcwd() is an inline function.
-Patch7:         gcl-2.6.8-getcwd.patch
+Patch6:		gcl-2.6.8-getcwd.patch
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a potential
 # buffer overflow when accessing files whose names start with a tilde (i.e.,
 # user home directories).
-Patch8:         gcl-2.6.8-loginname.patch
+Patch7:		gcl-2.6.8-loginname.patch
 # This patch was last sent upstream on 29 Dec 2008.  It updates the autoconf
 # and libtool files to newer versions.  By itself, this patch accomplishes
 # little of interest.  However, some of the later patches change configure.in.
 # Without this patch, autoconf appears to run successfully, but generates a
 # configure script that contains invalid shell script syntax.
-Patch9:         gcl-2.6.8-infrastructure.patch
+Patch8:		gcl-2.6.8-infrastructure.patch
 # This patch was last sent upstream on 29 Dec 2008.  It simplifies the handling
 # of alloca() detection in the configure script.
-Patch10:        gcl-2.6.8-alloca.patch
+Patch9:		gcl-2.6.8-alloca.patch
 # This patch was last sent upstream on 29 Dec 2008.  It rationalizes the
 # handling of system extensions.  For example, on glibc-based systems, some
 # functionality is available only when _GNU_SOURCE is defined.
-Patch11:        gcl-2.6.8-extension.patch
+Patch10:	gcl-2.6.8-extension.patch
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a compilation
 # error on newer GCC systems due to an include inside a function.  This affects
 # the "unrandomize" sbrk() functionality, hence the name of the patch.
-Patch12:        gcl-2.6.8-unrandomize.patch
+Patch11:	gcl-2.6.8-unrandomize.patch
 # This is a Fedora-specific patch.  Do not delete C files produced from D files
 # so they can be pulled into the debuginfo package.
-Patch13:        gcl-2.6.8-debuginfo.patch
+Patch12:	gcl-2.6.8-debuginfo.patch
 # The need for this patch was last communicated to upstream on 21 May 2009.
 # Without this patch, compilation fails due to conflicting type definitions
 # between glibc and Linux kernel headers. This patch prevents the kernel
 # headers from being used.
-Patch14:	gcl-2.6.8-asm-signal-h.patch 
+Patch13:	gcl-2.6.8-asm-signal-h.patch 
 # This patch was last sent upstream on 13 Oct 2009. It fixes two bugs in the
 # reading of PLT information.
-Patch15:	gcl-2.6.8-plt.patch 
+Patch14:	gcl-2.6.8-plt.patch 
 # This patch was last sent upstream on 13 Oct 2009. It fixes several malformed
 # function prototypes involving an ellipsis.
-Patch16:	gcl-2.6.8-ellipsis.patch 
+Patch15:	gcl-2.6.8-ellipsis.patch 
 
 # Patch required to build in Mandriva
-Patch17:	gcl-2.6.8-tcl8.6.patch
+Patch16:	gcl-2.6.8-tcl8.6.patch
 
-#   There is a blank line after " .iplt"; it must be understood of gcl
-# will not read the symbol names and addresses under that section
-#   This patch also tries to make the logic of parsing the map file less
-# obfuscated so that it should be easier to find out problems in the future
-#   This patch is required at least for *system* binutils 2.19.51.0.14 and
-# binutils-2.20.51, as it handles different *system* ld output
-Patch18:	gcl-2.6.8-iplt.patch 
-Patch19:	gcl-2.6.8-gmp-5.0.patch
+Patch17:	gcl-2.6.8-gmp-5.0.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
@@ -243,9 +230,7 @@ gcl_exec_t.
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p0 -b .gmp
+%patch17 -p0 -b .gmp
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
