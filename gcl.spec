@@ -115,8 +115,6 @@ Patch15:        gcl-2.6.8-man.patch
 # Patch required to build in Mandriva
 Patch16:	gcl-2.6.8-tcl8.6.patch
 
-Patch17:	gcl-2.6.8-gmp-5.0.patch
-
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
 BuildRequires:  libxext-devel
@@ -210,26 +208,25 @@ gcl_exec_t.
 %prep
 %setup -q -n gcl-%{preversion}
 %setup -q -n gcl-%{preversion} -T -D -a 2
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%patch0
+%patch1
+%patch2
+%patch3
 %patch4 -p1
 %if %{with_selinux}
-%patch5 -p1
+%patch5
 %endif
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
+%patch6
+%patch7
+%patch8
+%patch9
+%patch10
+%patch11
+%patch12
+%patch13
+%patch14
+%patch15
 %patch16 -p1
-%patch17 -p0 -b .gmp
 
 # Don't let the configure script add compiler flags we don't want
 sed -i -e 's/fomit-frame-pointer/fno-strict-aliasing/' -e 's/-O3/-O2/g' configure
@@ -241,7 +238,7 @@ sed -i -e 's|/usr/lib/tk|%{_datadir}/tk|' debian/gcl.sh
 # all here, then add back the ones that should exist
 find . -type f -perm /0111 | xargs chmod a-x
 chmod a+x add-defs add-defs1 config.guess config.sub configure install.sh
-chmod a+x ltconfig bin/info bin/info1 gcl-tk/gcltksrv.in gcl-tk/ngcltksrv
+chmod a+x bin/info bin/info1 gcl-tk/gcltksrv.in gcl-tk/ngcltksrv
 chmod a+x mp/gcclab o/egrep-def utils/replace xbin/*
 
 
@@ -251,6 +248,7 @@ chmod a+x mp/gcclab o/egrep-def utils/replace xbin/*
 %define _ssp_cflags %{nil}
 %configure2_5x --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir} \
+  --disable-custreloc \
 %if %{static_libbfd}
   --enable-statsysbfd --disable-dynsysbfd
 %else
