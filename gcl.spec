@@ -8,7 +8,7 @@
 %define static_libbfd	1
 
 # Prerelease of 2.6.8
-%define alphatag 20100201cvs
+%define alphatag 20101115cvs
 
 %define preversion	2.6.8
 
@@ -43,16 +43,16 @@ License:        GPL+ and LGPLv2+
 URL:            http://www.gnu.org/software/gcl/
 # The source for this package was pulled from upstream's CVS repository.  Use
 # the following commands to generate the tarball:
-#	cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
-#	-r Version_2_6_8pre -D 2010-02-02 -d gcl-2.6.8 gcl
-#	tar cjvf gcl-2.6.8.tar.bz2 gcl-2.6.8 
-Source0:        gcl-%{preversion}.tar.bz2
+#   cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
+#     -r Version_2_6_8pre -D 2010-11-16 -d gcl-2.6.8 gcl
+#   tar cvf gcl-2.6.8.tar gcl-2.6.8
+#   xz gcl-2.6.8.tar
+Source0:        gcl-%{preversion}.tar.xz
 Source1:        gcl.el
 # This is some info files that are needed for the DESCRIBE function to do
 # something useful.  These files are present in CVS HEAD (i.e., the upcoming
 # 2.7.0 release), but are missing in the 2.6 branch.
-Source2:        gcl-2.6.8-info.tar.bz2
-
+Source2:        gcl-2.6.8-info.tar.xz
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a file descriptor
 # leak, as well as combining 4 system calls into only 2 on an exec().
 Patch0:		gcl-2.6.8-fd-leak.patch
@@ -77,41 +77,40 @@ Patch5:		gcl-2.6.8-rename.patch
 # compilation problem due to the fact that, at high optimization levels,
 # getcwd() is an inline function.
 Patch6:		gcl-2.6.8-getcwd.patch
-# This patch was last sent upstream on 29 Dec 2008.  It fixes a potential
-# buffer overflow when accessing files whose names start with a tilde (i.e.,
-# user home directories).
-Patch7:		gcl-2.6.8-loginname.patch
 # This patch was last sent upstream on 29 Dec 2008.  It updates the autoconf
 # and libtool files to newer versions.  By itself, this patch accomplishes
 # little of interest.  However, some of the later patches change configure.in.
 # Without this patch, autoconf appears to run successfully, but generates a
 # configure script that contains invalid shell script syntax.
-Patch8:		gcl-2.6.8-infrastructure.patch
+Patch7:		gcl-2.6.8-infrastructure.patch
 # This patch was last sent upstream on 29 Dec 2008.  It simplifies the handling
 # of alloca() detection in the configure script.
-Patch9:		gcl-2.6.8-alloca.patch
+Patch8:		gcl-2.6.8-alloca.patch
 # This patch was last sent upstream on 29 Dec 2008.  It rationalizes the
 # handling of system extensions.  For example, on glibc-based systems, some
 # functionality is available only when _GNU_SOURCE is defined.
-Patch10:	gcl-2.6.8-extension.patch
+Patch9:		gcl-2.6.8-extension.patch
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a compilation
 # error on newer GCC systems due to an include inside a function.  This affects
 # the "unrandomize" sbrk() functionality, hence the name of the patch.
-Patch11:	gcl-2.6.8-unrandomize.patch
+Patch10:	gcl-2.6.8-unrandomize.patch
 # This is a Fedora-specific patch.  Do not delete C files produced from D files
 # so they can be pulled into the debuginfo package.
-Patch12:	gcl-2.6.8-debuginfo.patch
+Patch11:	gcl-2.6.8-debuginfo.patch
 # The need for this patch was last communicated to upstream on 21 May 2009.
 # Without this patch, compilation fails due to conflicting type definitions
 # between glibc and Linux kernel headers. This patch prevents the kernel
 # headers from being used.
-Patch13:	gcl-2.6.8-asm-signal-h.patch 
+Patch12:	gcl-2.6.8-asm-signal-h.patch 
 # This patch was last sent upstream on 13 Oct 2009. It fixes two bugs in the
 # reading of PLT information.
-Patch14:	gcl-2.6.8-plt.patch 
+Patch13:	gcl-2.6.8-plt.patch 
 # This patch was last sent upstream on 13 Oct 2009. It fixes several malformed
 # function prototypes involving an ellipsis.
-Patch15:	gcl-2.6.8-ellipsis.patch 
+Patch14:	gcl-2.6.8-ellipsis.patch 
+# This patch was last sent upstream on 30 Dec 2010.  It fixes some malformed
+# man page constructions.
+Patch15:        gcl-2.6.8-man.patch
 
 # Patch required to build in Mandriva
 Patch16:	gcl-2.6.8-tcl8.6.patch
