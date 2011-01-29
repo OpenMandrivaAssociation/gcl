@@ -1,3 +1,6 @@
+# FIXME remove me - tetex-latex, texinfo, et all requiring texlive and texlive broken...
+%define tetex_working			0
+
 # minor adptation of fedora package:
 #	http://cvs.fedoraproject.org/viewvc/rpms/gcl/devel/
 %define _disable_ld_as_needed		1
@@ -124,9 +127,11 @@ BuildRequires:  binutils-devel
 BuildRequires:  tk-devel
 BuildRequires:  tcl-devel
 BuildRequires:  gmp-devel
+%if %{tetex_working}
 BuildRequires:  tetex-latex
-#BuildRequires:  tetex-dvipdfm
+BuildRequires:  tetex-dvipdfm
 BuildRequires:  texinfo
+%endif
 BuildRequires:  emacs-bin, emacs-el
 BuildRequires:  xemacs, xemacs-devel
 %if %{with_selinux}
@@ -261,8 +266,10 @@ make
 make -C info gcl.info
 
 # dwdoc needs one extra LaTeX run to resolve references
+%if %{tetex_working}
 cd xgcl-2
 pdflatex dwdoc.tex
+%endif
 
 %if %{with_selinux}
 # Build the SELinux policy
