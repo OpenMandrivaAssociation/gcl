@@ -125,7 +125,7 @@ BuildRequires:  tk-devel
 BuildRequires:  tcl-devel
 BuildRequires:  gmp-devel
 BuildRequires:  tetex-latex
-BuildRequires:  tetex-dvipdfm
+#BuildRequires:  tetex-dvipdfm
 BuildRequires:  texinfo
 BuildRequires:  emacs-bin, emacs-el
 BuildRequires:  xemacs, xemacs-devel
