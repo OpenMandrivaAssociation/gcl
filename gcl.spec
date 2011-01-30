@@ -115,8 +115,6 @@ Patch15:        gcl-2.6.8-man.patch
 # Patch required to build in Mandriva
 Patch16:	gcl-2.6.8-tcl8.6.patch
 
-Patch17:	gcl-2.6.8-nopdfdoc.patch
-
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires:  libsm-devel
 BuildRequires:  libxext-devel
