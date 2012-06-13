@@ -33,26 +33,26 @@
 %define xemacs_lispdir %(pkg-config xemacs --variable sitepkglispdir)
 %endif
 
-Name:           gcl
-Version:        %{preversion}.%{alphatag}
-Release:        %mkrel 1
-Summary:        GNU Common Lisp
+Name:		gcl
+Version:	%{preversion}.%{alphatag}
+Release:	2
+Summary:	GNU Common Lisp
 
-Group:          Development/Other
-License:        GPL+ and LGPLv2+
-URL:            http://www.gnu.org/software/gcl/
+Group:		Development/Other
+License:	GPL+ and LGPLv2+
+URL:		http://www.gnu.org/software/gcl/
 # The source for this package was pulled from upstream's CVS repository.  Use
 # the following commands to generate the tarball:
 #   cvs -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/gcl export \
 #     -r Version_2_6_8pre -D 2010-11-16 -d gcl-2.6.8 gcl
 #   tar cvf gcl-2.6.8.tar gcl-2.6.8
 #   xz gcl-2.6.8.tar
-Source0:        gcl-%{preversion}.tar.xz
-Source1:        gcl.el
+Source0:	gcl-%{preversion}.tar.xz
+Source1:	gcl.el
 # This is some info files that are needed for the DESCRIBE function to do
 # something useful.  These files are present in CVS HEAD (i.e., the upcoming
 # 2.7.0 release), but are missing in the 2.6 branch.
-Source2:        gcl-2.6.8-info.tar.xz
+Source2:	gcl-2.6.8-info.tar.xz
 # This patch was last sent upstream on 29 Dec 2008.  It fixes a file descriptor
 # leak, as well as combining 4 system calls into only 2 on an exec().
 Patch0:		gcl-2.6.8-fd-leak.patch
@@ -115,34 +115,30 @@ Patch15:        gcl-2.6.8-man.patch
 # Patch required to build in Mandriva
 Patch16:	gcl-2.6.8-tcl8.6.patch
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires:  libsm-devel
-BuildRequires:  libxext-devel
-BuildRequires:  libxaw-devel
-BuildRequires:  readline-devel
-BuildRequires:  binutils-devel
-BuildRequires:  tk-devel
-BuildRequires:  tcl-devel
-BuildRequires:  gmp-devel
-BuildRequires:  texlive-latex
-BuildRequires:  texlive-dvipdfm
-BuildRequires:  texinfo
-BuildRequires:  emacs-bin, emacs-el
-BuildRequires:  xemacs, xemacs-devel
+BuildRequires:	libsm-devel
+BuildRequires:	libxext-devel
+BuildRequires:	libxaw-devel
+BuildRequires:	readline-devel
+BuildRequires:	binutils-devel
+BuildRequires:	tk-devel
+BuildRequires:	tcl-devel
+BuildRequires:	gmp-devel
+BuildRequires:	texlive-latex
+BuildRequires:	texlive-dvipdfm
+BuildRequires:	texinfo
+BuildRequires:	emacs-bin, emacs-el
+BuildRequires:	xemacs, xemacs-devel
 %if %{with_selinux}
-BuildRequires:  selinux-policy
+BuildRequires:	selinux-policy
 %endif
 BuildRequires:	x11-server-common
 
 %if %{with_selinux}
-Requires:       gcl-selinux
+Requires:	gcl-selinux
 %endif
 
-Requires(post): /sbin/install-info
-Requires(postun): /sbin/install-info
-
 # GCL currently fails to build on PPC64 platforms.  See bugzilla #480519.
-ExcludeArch: ppc64
+ExcludeArch:	ppc64
 
 %description
 GCL is a Common Lisp currently compliant with the ANSI standard.  Lisp
@@ -152,9 +148,9 @@ facile portability. Currently uses TCL/Tk as GUI.
 
 
 %package emacs
-Group:          Development/Other
-Summary:        Emacs mode for interacting with GCL
-Requires:       %{name} = %{version}-%{release}, emacs >= %{emacs_version}
+Group:		Development/Other
+Summary:	Emacs mode for interacting with GCL
+Requires:	%{name} = %{version}-%{release}, emacs >= %{emacs_version}
 # Don't make subpackages noarch as our bs does not deal with this yet
 #BuildArch:      noarch
 
@@ -162,9 +158,9 @@ Requires:       %{name} = %{version}-%{release}, emacs >= %{emacs_version}
 Emacs mode for interacting with GCL
 
 %package emacs-el
-Group:          Development/Other
-Summary:        Source for Emacs mode for interacting with GCL
-Requires:       %{name}-emacs = %{version}-%{release}
+Group:		Development/Other
+Summary:	Source for Emacs mode for interacting with GCL
+Requires:	%{name}-emacs = %{version}-%{release}
 #BuildArch:      noarch
 
 %description emacs-el
@@ -172,19 +168,19 @@ Source Elisp code for Emacs mode for interacting with GCL
 
 
 %package xemacs
-Group:          Development/Other
-Summary:        XEmacs mode for interacting with GCL
-Requires:       %{name} = %{version}-%{release}
-Requires:       xemacs >= %{xemacs_version}, xemacs-extras
+Group:		Development/Other
+Summary:	XEmacs mode for interacting with GCL
+Requires:	%{name} = %{version}-%{release}
+Requires:	xemacs >= %{xemacs_version}, xemacs-extras
 #BuildArch:      noarch
 
 %description xemacs
 XEmacs mode for interacting with GCL
 
 %package xemacs-el
-Group:          Development/Other
-Summary:        Source for XEmacs mode for interacting with GCL
-Requires:       %{name}-xemacs = %{version}-%{release}
+Group:		Development/Other
+Summary:	Source for XEmacs mode for interacting with GCL
+Requires:	%{name}-xemacs = %{version}-%{release}
 #BuildArch:      noarch
 
 %description xemacs-el
@@ -193,9 +189,9 @@ Source Elisp code for XEmacs mode for interacting with GCL
 
 %if %{with_selinux}
 %package selinux
-Group:          Development/Other
-Summary:        SELinux policy for GCL images
-Requires(post): policycoreutils
+Group:		Development/Other
+Summary:	SELinux policy for GCL images
+Requires(post):	policycoreutils
 Requires(postun): policycoreutils
 
 %description selinux
@@ -203,7 +199,6 @@ SELinux policy for GCL images.  All programs that dump GCL images to be run on
 SELinux-enabled hosts should Require this package, and give the image the type
 gcl_exec_t.
 %endif
-
 
 %prep
 %setup -q -n gcl-%{preversion}
@@ -271,87 +266,61 @@ make -f %{_datadir}/selinux/devel/Makefile
 %endif
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
 
 # Get rid of the parts that we don't want
-rm -f $RPM_BUILD_ROOT%{_infodir}/dir
-rm -rf $RPM_BUILD_ROOT%{_datadir}/doc
-rm -rf $RPM_BUILD_ROOT%{_datadir}/emacs
-rm -rf $RPM_BUILD_ROOT%{_prefix}/lib/gcl-*/info
+rm -f %{buildroot}%{_infodir}/dir
+rm -rf %{buildroot}%{_datadir}/doc
+rm -rf %{buildroot}%{_datadir}/emacs
+rm -rf %{buildroot}%{_prefix}/lib/gcl-*/info
 
 # Install the man page
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-cp -pf man/man1/* $RPM_BUILD_ROOT%{_mandir}/man1
+mkdir -p %{buildroot}%{_mandir}/man1
+cp -pf man/man1/* %{buildroot}%{_mandir}/man1
 
 # Install the HTML documentation
 mkdir -p html
 cp -pfr info/gcl-si info/gcl-tk html
 
 # Install and compile the Emacs code
-mkdir -p $RPM_BUILD_ROOT%{emacs_lispdir}/gcl
-cp -pfr elisp/* $RPM_BUILD_ROOT%{emacs_lispdir}/gcl
-rm -f $RPM_BUILD_ROOT%{emacs_lispdir}/gcl/makefile
-rm -f $RPM_BUILD_ROOT%{emacs_lispdir}/gcl/readme
-mkdir -p $RPM_BUILD_ROOT%{emacs_lispdir}/site-start.d
-sed -e "s|%LISP_DIR%|%{emacs_lispdir}|" %{SOURCE1} > $RPM_BUILD_ROOT%{emacs_lispdir}/site-start.d/gcl.el
-pushd $RPM_BUILD_ROOT%{emacs_lispdir}/gcl
+mkdir -p %{buildroot}%{emacs_lispdir}/gcl
+cp -pfr elisp/* %{buildroot}%{emacs_lispdir}/gcl
+rm -f %{buildroot}%{emacs_lispdir}/gcl/makefile
+rm -f %{buildroot}%{emacs_lispdir}/gcl/readme
+mkdir -p %{buildroot}%{emacs_lispdir}/site-start.d
+sed -e "s|%LISP_DIR%|%{emacs_lispdir}|" %{SOURCE1} > %{emacs_lispdir}/site-start.d/gcl.el
+pushd %{buildroot}%{emacs_lispdir}/gcl
 emacs -batch -no-site-file --eval "(push \"`pwd`\" load-path)" \
   -f batch-byte-compile *.el
 popd
 
 # Install and compile the XEmacs code
-mkdir -p $RPM_BUILD_ROOT%{xemacs_lispdir}/gcl
-cp -fr elisp/* $RPM_BUILD_ROOT%{xemacs_lispdir}/gcl
-rm -f $RPM_BUILD_ROOT%{xemacs_lispdir}/gcl/makefile
-rm -f $RPM_BUILD_ROOT%{xemacs_lispdir}/gcl/readme
-mkdir -p $RPM_BUILD_ROOT%{xemacs_lispdir}/site-start.d
-sed -e "s|%LISP_DIR%|%{xemacs_lispdir}|" %{SOURCE1} > $RPM_BUILD_ROOT%{xemacs_lispdir}/site-start.d/gcl.el
-pushd $RPM_BUILD_ROOT%{xemacs_lispdir}/gcl
+mkdir -p %{buildroot}%{xemacs_lispdir}/gcl
+cp -fr elisp/* %{buildroot}%{xemacs_lispdir}/gcl
+rm -f %{buildroot}%{xemacs_lispdir}/gcl/makefile
+rm -f %{buildroot}%{xemacs_lispdir}/gcl/readme
+mkdir -p %{buildroot}%{xemacs_lispdir}/site-start.d
+sed -e "s|%LISP_DIR%|%{xemacs_lispdir}|" %{SOURCE1} > %{buildroot}%{xemacs_lispdir}/site-start.d/gcl.el
+pushd %{buildroot}%{xemacs_lispdir}/gcl
 xemacs -batch -no-site-file -eval "(push \"`pwd`\" load-path)" \
   -f batch-byte-compile *.el
 popd
 
 %if %{with_selinux}
 # Save the policy file away for later installation
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/selinux/packages/gcl
-cp -p selinux/gcl.pp $RPM_BUILD_ROOT%{_datadir}/selinux/packages/gcl
+mkdir -p %{buildroot}%{_datadir}/selinux/packages/gcl
+cp -p selinux/gcl.pp %{buildroot}%{_datadir}/selinux/packages/gcl
 %endif
 
 # The image has garbage strings containing RPM_BUILD_ROOT
 export QA_SKIP_BUILD_ROOT=1
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-rm -f /tmp/gazonk_* /tmp/gcl_*
-
-
-%post
-/sbin/install-info %{_infodir}/%{name}.info %{_infodir}/dir \
-  --entry="* gcl: (gcl).	GNU Common Lisp Manual." \
-  2>/dev/null || :
-/sbin/install-info %{_infodir}/%{name}-si.info %{_infodir}/dir \
-  --entry="* gcl-si: (gcl-si).	GNU Common Lisp System Internals." \
-  2>/dev/null || :
-/sbin/install-info %{_infodir}/%{name}-tk.info %{_infodir}/dir \
-  --entry="* gcl-tk: (gcl-tk).	GNU Common Lisp Tk Manual." \
-  2>/dev/null || :
-
 
 %if %{with_selinux}
 %post selinux
 /usr/sbin/semodule -i %{_datadir}/selinux/packages/gcl/gcl.pp || :
 /sbin/fixfiles -R gcl restore || :
 %endif
-
-%postun
-if [ $1 = 0 ]; then
-    /sbin/install-info --delete %{_infodir}/%{name}.info %{_infodir}/dir 2>/dev/null || :
-    /sbin/install-info --delete %{_infodir}/%{name}-si.info %{_infodir}/dir 2>/dev/null || :
-    /sbin/install-info --delete %{_infodir}/%{name}-tk.info %{_infodir}/dir 2>/dev/null || :
-fi
-
 
 %if %{with_selinux}
 %postun selinux
@@ -361,7 +330,6 @@ fi
 %endif
 
 %files
-%defattr(-,root,root,-)
 %{_bindir}/gcl
 %{_prefix}/lib/gcl*
 %{_infodir}/*
@@ -371,29 +339,24 @@ fi
 %doc --parent html
 
 %files emacs
-%defattr(-,root,root,-)
 %doc elisp/readme
 %dir %{emacs_lispdir}/gcl
 %{emacs_lispdir}/gcl/*.elc
 %{emacs_lispdir}/site-start.d/*
 
 %files emacs-el
-%defattr(-,root,root,-)
 %{emacs_lispdir}/gcl/*.el
 
 %files xemacs
-%defattr(-,root,root,-)
 %doc elisp/readme
 %dir %{xemacs_lispdir}/gcl
 %{xemacs_lispdir}/gcl/*.elc
 %{xemacs_lispdir}/site-start.d/*
 
 %files xemacs-el
-%defattr(-,root,root,-)
 %{xemacs_lispdir}/gcl/*.el
 
 %if %{with_selinux}
 %files selinux
-%defattr(-,root,root,-)
 %{_datadir}/selinux/packages/gcl
 %endif
