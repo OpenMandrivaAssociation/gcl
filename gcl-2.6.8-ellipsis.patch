@@ -1,0 +1,33 @@
+--- o/external_funs.h.orig	2003-08-29 14:41:59.000000000 -0600
++++ o/external_funs.h	2010-12-30 11:43:37.550608880 -0700
+@@ -167,8 +167,8 @@ extern int illegal_lambda GPR((void));; 
+ extern object find_special GPR((object body, struct bind_temp *start, struct bind_temp *end));;  
+ extern object let_bind GPR((object body, struct bind_temp *start, struct bind_temp *end));;  
+ extern object letA_bind GPR((object body, struct bind_temp *start, struct bind_temp *end));;  
+-extern int parse_key GPR((object *base, bool rest, bool allow_other_keys, register int n, int __builtin_va_alist));;  
+-extern int check_other_key GPR((object l, int n, int __builtin_va_alist));;  
++extern int parse_key GPR((object *base, bool rest, bool allow_other_keys, int n, ...));;  
++extern int check_other_key GPR((object l, int n, ...));;  
+ extern int parse_key_new GPR((int n, object *base, struct key *keys, ...));;  
+ extern int parse_key_rest GPR((object rest, int n, object *base, struct key *keys, ...));;  
+ extern int set_key_struct GPR((struct key *ks, object data));;  
+@@ -380,7 +380,6 @@ extern int not_a_symbol GPR((int obj));;
+ extern int not_a_variable GPR((int obj));;  
+ extern int illegal_index GPR((object x, object i));;  
+ extern int Lerror GPR((void));;  
+-extern object LVerror GPR((int __builtin_va_alist));;  
+ extern int Lcerror GPR((void));;  
+ extern int vfun_wrong_number_of_args GPR((object x));;  
+ extern int init_error GPR((void));;  
+@@ -415,9 +414,6 @@ extern object ifuncall1 GPR((object fun,
+ extern object ifuncall2 GPR((object fun, object arg1, object arg2));;  
+ extern object ifuncall3 GPR((object fun, object arg1, object arg2, object arg3));;  
+ extern int funcall_with_catcher GPR((object fname, object fun));;  
+-extern object fcalln_cclosure GPR((...));;  
+-extern object fcalln_general GPR((...));;  
+-extern object fcalln_vfun GPR((va_list vl));;  
+-extern object fcalln GPR((int __builtin_va_alist));;  
+-extern object funcall_cfun GPR((funcvoid fn, int n, int __builtin_va_alist));;  
++extern object fcalln GPR((object first, ...));;  
++extern object funcall_cfun GPR((funcvoid fn, int n, ...));;  
+ extern int init_eval GPR((void));;  

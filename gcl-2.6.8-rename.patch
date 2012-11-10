@@ -1,0 +1,31 @@
+--- o/unixfsys.c.orig	2010-09-22 13:03:11.000000000 -0600
++++ o/unixfsys.c	2010-12-29 11:52:55.301247671 -0700
+@@ -412,11 +412,17 @@ FILE *
+ backup_fopen(char *filename, char *option)
+ {
+ 	char backupfilename[MAXPATHLEN];
+-	char command[MAXPATHLEN * 2];
++#ifndef HAVE_RENAME
++	char command[MAXPATHLEN * 2 + 4];
++#endif
+ 
+ 	strcat(strcpy(backupfilename, filename), ".BAK");
++#ifdef HAVE_RENAME
++	rename(filename, backupfilename);
++#else
+ 	sprintf(command, "mv %s %s", filename, backupfilename);
+ 	msystem(command);
++#endif
+ 	return(fopen(filename, option));
+ }
+ 
+@@ -441,6 +447,9 @@ LFD(Lrename_file)(void)
+ {
+ 	char filename[MAXPATHLEN];
+ 	char newfilename[MAXPATHLEN];
++#ifndef HAVE_RENAME
++	char command[MAXPATHLEN * 2 + 4];
++#endif
+ 
+ 	check_arg(2);
+ 	check_type_or_pathname_string_symbol_stream(&vs_base[0]);

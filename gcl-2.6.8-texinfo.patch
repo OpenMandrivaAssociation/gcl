@@ -1,0 +1,20 @@
+--- info/gcl-si.texi.orig	2005-04-30 22:12:37.000000000 -0600
++++ info/gcl-si.texi	2010-12-29 11:38:22.142419284 -0700
+@@ -10,6 +10,7 @@
+ 
+ @c @smallbook
+ @setfilename gcl-si.info
++@settitle GCL SI Manual
+ @synindex vr fn
+ 
+ @c to update the menus do: 
+--- info/gcl-tk.texi.orig	2002-02-19 12:21:19.000000000 -0700
++++ info/gcl-tk.texi	2010-12-29 11:38:38.214501822 -0700
+@@ -2,6 +2,7 @@
+ @c -*-texinfo-*-
+ @c @smallbook
+ @setfilename gcl-tk.info
++@settitle GCL TK Manual
+ 
+ @c to update the menus do: 
+ @c (texinfo-multiple-files-update "gcl-tk.texi" t t)

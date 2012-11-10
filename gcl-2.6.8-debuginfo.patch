@@ -1,0 +1,10 @@
+--- o/makefile.orig	2010-08-04 15:44:27.000000000 -0600
++++ o/makefile	2010-12-30 11:28:46.620108026 -0700
+@@ -27,7 +27,6 @@ DECL := $(HDIR)/new_decl.h
+ %.o: %.d $(DECL)
+ 	$(DPP) $*
+ 	$(CC) -c $(CFLAGS) $(DEFS) $*.c $(AUX_INFO)
+-	rm $*.c
+ 
+ CPP=
+ 

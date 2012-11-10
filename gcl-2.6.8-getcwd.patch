@@ -1,0 +1,20 @@
+--- o/unixfsys.c.orig	2010-12-29 11:52:55.301247671 -0700
++++ o/unixfsys.c	2010-12-29 11:58:52.389645190 -0700
+@@ -150,17 +150,6 @@ DEV_FOUND:
+ #endif
+ 
+ 
+-#ifdef HAVE_GETCWD
+-char *
+-getwd(char *buffer) {
+-#ifndef _WIN32    
+-  char *getcwd(char *, size_t);
+-#endif
+-  return(getcwd(buffer, MAXPATHLEN));
+-}
+-#endif
+-
+-
+ #define pcopy(a_,b_,c_,d_) ({\
+       unsigned _c=c_,_d=d_;\
+       if (_c+_d>=MAXPATHLEN-16) FEerror("Can't expand pathname ~a",1,namestring);\
