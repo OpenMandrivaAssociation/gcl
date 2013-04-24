@@ -115,7 +115,7 @@ Patch15:        gcl-2.6.8-man.patch
 # Patch required to build in Mandriva
 Patch16:	gcl-2.6.8-tcl8.6.patch
 
-BuildRequires:	libsm-devel
+BuildRequires:	pkgconfig(libSM)
 BuildRequires:	libxext-devel
 BuildRequires:	libxaw-devel
 BuildRequires:	readline-devel
