@@ -1,0 +1,11 @@
+diff -up gcl-2.6.8/h/elf32_s390_reloc.h.s390 gcl-2.6.8/h/elf32_s390_reloc.h
+--- gcl-2.6.8/h/elf32_s390_reloc.h.s390	2013-01-23 07:50:36.000000000 -0500
++++ gcl-2.6.8/h/elf32_s390_reloc.h	2013-01-23 07:50:43.000000000 -0500
+@@ -5,3 +5,7 @@
+   case     R_390_PC32:
+     add_val(where,~0L,s+a-p);
+     break;
++
++  case     R_390_PC32DBL:
++    add_val(where,~0L,(s+a-p)>>1);
++    break;

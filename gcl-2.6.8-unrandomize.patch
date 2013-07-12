@@ -1,70 +1,6 @@
---- configure.orig	2010-12-30 13:36:33.746292681 -0700
-+++ configure	2010-12-30 13:40:53.685309008 -0700
-@@ -6846,9 +6846,11 @@ else
-   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
- /* end confdefs.h.  */
- 
-+		    #define CAN_UNRANDOMIZE_SBRK 1
-+		    #include "h/unrandomize.h"
- 		    void gprof_cleanup() {}
- 		    int main(int argc,char *argv[],char *envp[]) {
--	            #include "h/unrandomize.h"
-+		    UNRANDOMIZE_SBRK;
- 		    return 0;}
- _ACEOF
- if ac_fn_c_try_run "$LINENO"; then :
-@@ -6880,12 +6882,11 @@ else
- /* end confdefs.h.  */
- 
- 		    #include <stdio.h>
-+		    #include "h/unrandomize.h"
- 		    void gprof_cleanup() {}
- 		    int main(int argc,char * argv[],char * envp[]) {
- 			FILE *f;
--			#ifdef CAN_UNRANDOMIZE_SBRK
--			#include "h/unrandomize.h"
--			#endif
-+			UNRANDOMIZE_SBRK;
- 			if (!(f=fopen("conftest1","w"))) return -1;
- 			fprintf(f,"%u",sbrk(0));
- 			return 0;}
-@@ -6909,12 +6910,11 @@ else
- /* end confdefs.h.  */
- 
- 		    #include <stdio.h>
-+		    #include "h/unrandomize.h"
-                     void gprof_cleanup() {}
- 		    int main(int argc,char * argv[],char * envp[]) {
- 			FILE *f;
--			#ifdef CAN_UNRANDOMIZE_SBRK
--			#include "h/unrandomize.h"
--			#endif
-+			UNRANDOMIZE_SBRK;
- 			if (!(f=fopen("conftest1","w"))) return -1;
- 			fprintf(f,"%u",sbrk(0));
- 			return 0;}
-@@ -7001,6 +7001,7 @@ else
- 
- #include <stdio.h>
- #include <stdlib.h>
-+#include "h/unrandomize.h"
- 
- void gprof_cleanup() {}
- int
-@@ -7009,9 +7010,7 @@ main(int argc,char * argv[],char *envp[]
-   char *b,*b1;
-   FILE *fp;
- 
--#ifdef CAN_UNRANDOMIZE_SBRK
--#include "h/unrandomize.h"
--#endif
-+  UNRANDOMIZE_SBRK;
-   b = (void *) malloc(1000);
-   fp = fopen("conftest1","w");
- 
---- configure.in.orig	2010-12-30 13:36:33.744292599 -0700
-+++ configure.in	2010-12-30 13:39:30.429303332 -0700
-@@ -1135,9 +1135,11 @@ if test "$HAVE_SBRK" = "1" ; then
+--- ./configure.in.orig	2013-05-10 08:26:52.000000000 -0600
++++ ./configure.in	2013-05-10 08:26:52.000000000 -0600
+@@ -1187,9 +1187,11 @@ if test "$HAVE_SBRK" = "1" ; then
  
  	AC_MSG_CHECKING([for personality(ADDR_NO_RANDOMIZE) support])
  	AC_RUN_IFELSE([AC_LANG_SOURCE([[
@@ -77,12 +13,12 @@
  		    return 0;}]])],CAN_UNRANDOMIZE_SBRK=1,CAN_UNRANDOMIZE_SBRK=0,CAN_UNRANDOMIZE_SBRK=0)
  
  	if test "$CAN_UNRANDOMIZE_SBRK" != 0 ; then
-@@ -1150,12 +1152,11 @@ if test "$HAVE_SBRK" = "1" ; then
+@@ -1202,12 +1204,11 @@ if test "$HAVE_SBRK" = "1" ; then
  	AC_MSG_CHECKING([that sbrk is (now) non-random])
  	AC_RUN_IFELSE([AC_LANG_SOURCE([[
  		    #include <stdio.h>
 +		    #include "h/unrandomize.h"
- 		    void gprof_cleanup() {}
+ 	            void gprof_cleanup() {}
  		    int main(int argc,char * argv[],char * envp[]) {
  			FILE *f;
 -			#ifdef CAN_UNRANDOMIZE_SBRK
@@ -92,7 +28,7 @@
  			if (!(f=fopen("conftest1","w"))) return -1;
  			fprintf(f,"%u",sbrk(0));
  			return 0;}]])],SBRK=`cat conftest1`,SBRK=0,SBRK=0)
-@@ -1164,12 +1165,11 @@ if test "$HAVE_SBRK" = "1" ; then
+@@ -1216,12 +1217,11 @@ if test "$HAVE_SBRK" = "1" ; then
  	fi
  	AC_RUN_IFELSE([AC_LANG_SOURCE([[
  		    #include <stdio.h>
@@ -107,7 +43,7 @@
  			if (!(f=fopen("conftest1","w"))) return -1;
  			fprintf(f,"%u",sbrk(0));
  			return 0;}]])],SBRK1=`cat conftest1`,SBRK1=0,SBRK1=0)
-@@ -1211,6 +1211,7 @@ AC_MSG_CHECKING([finding DBEGIN])
+@@ -1263,6 +1263,7 @@ AC_MSG_CHECKING([finding DBEGIN])
  AC_RUN_IFELSE([AC_LANG_SOURCE([[
  #include <stdio.h>
  #include <stdlib.h>
@@ -115,7 +51,7 @@
  
  void gprof_cleanup() {}
  int
-@@ -1219,9 +1220,7 @@ main(int argc,char * argv[],char *envp[]
+@@ -1271,9 +1272,7 @@ main(int argc,char * argv[],char *envp[]
    char *b,*b1;
    FILE *fp;
  
@@ -126,8 +62,95 @@
    b = (void *) malloc(1000);
    fp = fopen("conftest1","w");
  
---- h/unrandomize.h.orig	2010-01-12 07:19:15.000000000 -0700
-+++ h/unrandomize.h	2010-12-30 13:36:40.877294739 -0700
+--- ./configure.orig	2013-05-10 08:32:03.000000000 -0600
++++ ./configure	2013-05-10 10:19:55.934751565 -0600
+@@ -7086,9 +7086,11 @@ else
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
++		    #define CAN_UNRANDOMIZE_SBRK 1
++		    #include "h/unrandomize.h"
+ 		    void gprof_cleanup() {}
+ 		    int main(int argc,char *argv[],char *envp[]) {
+-	            #include "h/unrandomize.h"
++		    UNRANDOMIZE_SBRK;
+ 		    return 0;}
+ _ACEOF
+ if ac_fn_c_try_run "$LINENO"; then :
+@@ -7120,12 +7122,11 @@ else
+ /* end confdefs.h.  */
+ 
+ 		    #include <stdio.h>
++		    #include "h/unrandomize.h"
+ 	            void gprof_cleanup() {}
+ 		    int main(int argc,char * argv[],char * envp[]) {
+ 			FILE *f;
+-			#ifdef CAN_UNRANDOMIZE_SBRK
+-			#include "h/unrandomize.h"
+-			#endif
++			UNRANDOMIZE_SBRK;
+ 			if (!(f=fopen("conftest1","w"))) return -1;
+ 			fprintf(f,"%u",sbrk(0));
+ 			return 0;}
+@@ -7149,12 +7150,11 @@ else
+ /* end confdefs.h.  */
+ 
+ 		    #include <stdio.h>
++		    #include "h/unrandomize.h"
+                     void gprof_cleanup() {}
+ 		    int main(int argc,char * argv[],char * envp[]) {
+ 			FILE *f;
+-			#ifdef CAN_UNRANDOMIZE_SBRK
+-			#include "h/unrandomize.h"
+-			#endif
++			UNRANDOMIZE_SBRK;
+ 			if (!(f=fopen("conftest1","w"))) return -1;
+ 			fprintf(f,"%u",sbrk(0));
+ 			return 0;}
+@@ -7241,6 +7241,7 @@ else
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include "h/unrandomize.h"
+ 
+ void gprof_cleanup() {}
+ int
+@@ -7249,9 +7250,7 @@ main(int argc,char * argv[],char *envp[]
+   char *b,*b1;
+   FILE *fp;
+ 
+-#ifdef CAN_UNRANDOMIZE_SBRK
+-#include "h/unrandomize.h"
+-#endif
++  UNRANDOMIZE_SBRK;
+   b = (void *) malloc(1000);
+   fp = fopen("conftest1","w");
+ 
+--- ./o/main.c.orig	2010-11-02 15:56:45.000000000 -0600
++++ ./o/main.c	2012-07-26 09:52:37.251033241 -0600
+@@ -51,6 +51,7 @@ void initialize_process();
+ #include <signal.h>
+ #endif
+ #include "page.h"
++#include "unrandomize.h"
+ 
+ bool saving_system ;
+ 
+@@ -146,11 +147,7 @@ main(int argc, char **argv, char **envp)
+ #endif	
+ 	*argv=kcl_self;
+ 
+-#ifdef CAN_UNRANDOMIZE_SBRK
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include "unrandomize.h"
+-#endif
++	UNRANDOMIZE_SBRK;
+ 
+ #ifdef LD_BIND_NOW
+ #include <stdio.h>
+--- ./h/unrandomize.h.orig	2010-01-12 07:19:15.000000000 -0700
++++ ./h/unrandomize.h	2012-07-26 09:52:37.274033201 -0600
 @@ -1,39 +1,45 @@
 +#include <stdio.h>
 +#include <stdlib.h>
@@ -206,26 +229,3 @@
 -    }
 -  }
 -}
---- o/main.c.orig	2010-11-02 15:56:45.000000000 -0600
-+++ o/main.c	2010-12-30 13:36:40.877294739 -0700
-@@ -51,6 +51,7 @@ void initialize_process();
- #include <signal.h>
- #endif
- #include "page.h"
-+#include "unrandomize.h"
- 
- bool saving_system ;
- 
-@@ -146,11 +147,7 @@ main(int argc, char **argv, char **envp)
- #endif	
- 	*argv=kcl_self;
- 
--#ifdef CAN_UNRANDOMIZE_SBRK
--#include <stdio.h>
--#include <stdlib.h>
--#include "unrandomize.h"
--#endif
-+	UNRANDOMIZE_SBRK;
- 
- #ifdef LD_BIND_NOW
- #include <stdio.h>

@@ -1,6 +1,6 @@
---- o/unixfsys.c.orig	2010-09-22 13:03:11.000000000 -0600
-+++ o/unixfsys.c	2010-12-29 11:52:55.301247671 -0700
-@@ -412,11 +412,17 @@ FILE *
+--- ./o/unixfsys.c.orig	2013-01-21 11:37:48.000000000 -0700
++++ ./o/unixfsys.c	2013-01-21 14:18:53.323182657 -0700
+@@ -411,11 +411,17 @@ FILE *
  backup_fopen(char *filename, char *option)
  {
  	char backupfilename[MAXPATHLEN];
@@ -19,7 +19,7 @@
  	return(fopen(filename, option));
  }
  
-@@ -441,6 +447,9 @@ LFD(Lrename_file)(void)
+@@ -440,6 +446,9 @@ LFD(Lrename_file)(void)
  {
  	char filename[MAXPATHLEN];
  	char newfilename[MAXPATHLEN];

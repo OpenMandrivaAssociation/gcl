@@ -1,0 +1,926 @@
+--- ./h/protoize.h.orig	2013-05-11 14:42:29.000000000 -0600
++++ ./h/protoize.h	2013-05-13 14:46:33.925671152 -0600
+@@ -508,7 +508,7 @@ typedef void (*funcvoid)(void);
+ /* unixfsys.c:329:OF */ extern bool file_exists (object file); /* (file) object file; */
+ /* unixfsys.c:359:OF */ extern FILE *backup_fopen (char *filename, char *option); /* (filename, option) char *filename; char *option; */
+ /* unixfsys.c:359:OF */ extern FILE *fopen_not_dir (char *filename, char *option); /* (filename, option) char *filename; char *option; */
+-/* unixfsys.c:372:OF */ extern int file_len (FILE *fp); /* (fp) FILE *fp; */
++/* unixfsys.c:372:OF */ extern off_t file_len (FILE *fp); /* (fp) FILE *fp; */
+ /* unixfsys.c:382:OF */ extern object truename (object); /* () */
+ /* unixfsys.c:382:OF */ extern void Ltruename (void); /* () */
+ /* unixfsys.c:418:OF */ extern object fSsetenv (object variable, object value); /* (variable, value) object variable; object value; */
+@@ -731,11 +731,11 @@ edit_double(int, double, int *, char *,
+ void
+ sethash(object,object,object);
+ 
+-int
++off_t
+ file_position(object);
+ 
+ int
+-file_position_set(object, int);
++file_position_set(object, off_t);
+ 
+ void
+ princ_str(char *s, object);
+--- ./h/linux.h.orig	2012-01-17 18:29:27.000000000 -0700
++++ ./h/linux.h	2013-05-13 14:46:33.926671150 -0600
+@@ -12,13 +12,13 @@
+ #include <link.h>
+ #define SEEK_TO_END_OFILE(fp)\
+   do { \
+-	long offset = 0, endofelf; int j; \
++	off_t offset = 0, endofelf; int j; \
+ 	ElfW(Ehdr) eheader; ElfW(Shdr) shdr; \
+-        fseek(fp, 0, SEEK_SET); \
++        fseeko(fp, 0, SEEK_SET); \
+         fread(&eheader, sizeof(eheader), 1, fp); \
+   /* in case the headers themselves come AFTER the actual sections */ \
+ 	endofelf=offset = eheader.e_shoff+ eheader.e_shentsize *eheader.e_shnum;\
+-        fseek(fp, eheader.e_shoff, SEEK_SET); \
++        fseeko(fp, eheader.e_shoff, SEEK_SET); \
+ 	if ( eheader.e_shentsize != sizeof(ElfW(Shdr)) ) \
+ 	  { FEerror("Bad ELF section header size",0); } \
+         for ( j = 0; j < eheader.e_shnum; j++ ) \
+@@ -26,7 +26,7 @@
+             if ( (shdr.sh_offset > offset) && (shdr.sh_type != SHT_NOBITS) ) \
+ 	      { offset = shdr.sh_offset; endofelf = offset+shdr.sh_size; } \
+ 	  } \
+-	if ( fseek(fp, endofelf, SEEK_SET) ) \
++	if ( fseeko(fp, endofelf, SEEK_SET) ) \
+ 	    FEerror("Bad ELF file",0); \
+       } while(0)
+ 
+--- ./h/mp.h.orig	2005-01-15 09:27:36.000000000 -0700
++++ ./h/mp.h	2013-05-13 14:46:33.926671150 -0600
+@@ -35,6 +35,22 @@ typedef struct
+             
+ #define SI_TO_MP(x, temp) (mpz_set_si(MP(temp),(x)), MP(temp))
+             
++#define C_INT_TO_OBJ(x) ({					\
++  object temp = big_fixnum1;					\
++  if (x >= MOST_NEG_FIXNUM && x <= MOST_POSITIVE_FIXNUM)	\
++    temp = make_fixnum(x);					\
++  else if (sizeof(x) <= sizeof(long))				\
++    mpz_set_si(MP(big_fixnum1), x);				\
++  else if (x < 0) {						\
++    __typeof__(x) y = -x;					\
++    mpz_import(MP(big_fixnum2), 1U, 1, sizeof(x), 0, 0U, &y);	\
++    mpz_neg(MP(big_fixnum1), MP(big_fixnum2));			\
++  } else {							\
++    __typeof__(x) y = x;					\
++    mpz_import(MP(big_fixnum1), 1U, 1, sizeof(x), 0, 0U, &y);	\
++  }								\
++  temp;							\
++})
+ 
+ #define INTEGER_TO_MP(x, temp ) \
+   (type_of(x) == t_bignum ? MP(x) : SI_TO_MP(fix(x), temp))
+@@ -110,6 +126,20 @@ GEN subss();
+ 
+ #define SI_TO_MP(x,ignore) stoi(x)
+ 
++#define C_INT_TO_OBJ(x) ({					\
++  object temp = big_fixnum1;					\
++  if (x >= MOST_NEG_FIXNUM && x <= MOST_POSITIVE_FIXNUM)	\
++    temp = make_fixnum(x);					\
++  else if (sizeof(x) <= sizeof(long))				\
++    MP(big_fixnum1) = stoi(x);					\
++  else if (x < 0) {						\
++    __typeof__(x) y = -x;					\
++    MP(big_fixnum1) = uutoineg((y) >> (sizeof(ulong) * 8), (y) & (ulong)-1); \
++  } else							\
++    MP(big_fixnum1) = uutoi((x) >> (sizeof(ulong) * 8), (x) & (ulong)-1); \
++  temp;							\
++})
++
+ #define INT_FLAG 0x1010000
+ 
+ #define MP_ALLOCATED(x) (x)->big.big_length
+--- ./o/unixfasl.c.orig	2004-05-03 15:35:58.000000000 -0600
++++ ./o/unixfasl.c	2013-05-13 14:46:33.927671148 -0600
+@@ -90,8 +90,8 @@ object faslfile;
+ #ifdef ATT
+ 	struct filehdr fileheader;
+ 	struct scnhdr sectionheader;
+-	int textsize, datasize, bsssize;
+-	int textstart;
++	off_t textsize, datasize, bsssize;
++	off_t textstart;
+ #endif
+ 
+ #ifdef E15
+@@ -129,7 +129,7 @@ object faslfile;
+ #ifdef ATT
+ 	fread(&fileheader, sizeof(fileheader), 1, fp);
+ #ifdef S3000
+-        if(fileheader.f_opthdr != 0) fseek(fp,fileheader.f_opthdr,1);
++        if(fileheader.f_opthdr != 0) fseeko(fp,fileheader.f_opthdr,1);
+ #endif
+ 	fread(&sectionheader, sizeof(sectionheader), 1, fp);
+ 	textsize = sectionheader.s_size;
+@@ -162,27 +162,27 @@ object faslfile;
+ SEEK_TO_END_OFILE(fp);
+ #else
+ #ifdef BSD
+-	fseek(fp,
++	fseeko(fp,
+ 	      header.a_text+header.a_data+
+ 	      header.a_syms+header.a_trsize+header.a_drsize,
+ 	      1);
+ 	fread(&i, sizeof(i), 1, fp);
+-	fseek(fp, i - sizeof(i), 1);
++	fseeko(fp, i - sizeof(i), 1);
+ #endif
+ 
+ #ifdef ATT
+-	fseek(fp,
++	fseeko(fp,
+ 	      fileheader.f_symptr + SYMESZ*fileheader.f_nsyms,
+ 	      0);
+ 	fread(&i, sizeof(i), 1, fp);
+-	fseek(fp, i - sizeof(i), 1);
++	fseeko(fp, i - sizeof(i), 1);
+ 	while ((i = getc(fp)) == 0)
+ 		;
+ 	ungetc(i, fp);
+ #endif
+ 
+ #ifdef E15
+-	fseek(fp,
++	fseeko(fp,
+ 	      header.a_text+header.a_data+
+ 	      header.a_syms+header.a_trsize+header.a_drsize,
+ 	      1);
+@@ -255,7 +255,7 @@ AGAIN:
+ 	}
+ #endif
+ 
+-	if (fseek(fp, textstart, 0) < 0)
++	if (fseeko(fp, textstart, 0) < 0)
+ 		error("file seek error");
+ 
+ 	fread(memory->cfd.cfd_start, textsize + datasize, 1, fp);
+@@ -334,12 +334,12 @@ SEEK_TO_END_OFILE(faslfile->sm.sm_fp);
+ #else  
+ 	fp = faslfile->sm.sm_fp;
+ 	fread(&faslheader, sizeof(faslheader), 1, fp);
+-	fseek(fp,
++	fseeko(fp,
+ 	      faslheader.a_text+faslheader.a_data+
+ 	      faslheader.a_syms+faslheader.a_trsize+faslheader.a_drsize,
+ 	      1);
+ 	fread(&i, sizeof(i), 1, fp);
+-	fseek(fp, i - sizeof(i), 1);
++	fseeko(fp, i - sizeof(i), 1);
+ #endif
+ 	data = read_fasl_vector(faslfile);
+ 	vs_push(data);
+@@ -361,7 +361,7 @@ SEEK_TO_END_OFILE(faslfile->sm.sm_fp);
+ 	vs_push(tempfile);
+ 	fp = tempfile->sm.sm_fp;
+ 
+-	if (fseek(fp, textstart, 0) < 0)
++	if (fseeko(fp, textstart, 0) < 0)
+ 		error("file seek error");
+ 
+ 	fread(memory->cfd.cfd_start, textsize + datasize, 1, fp);
+--- ./o/sfasl.c.orig	2010-08-04 15:44:27.000000000 -0600
++++ ./o/sfasl.c	2013-05-13 14:46:33.927671148 -0600
+@@ -133,7 +133,7 @@ void set_symbol_address ( struct syment
+ int
+ fasload(faslfile)
+ object faslfile;
+-{       long fasl_vector_start;
++{       off_t fasl_vector_start;
+ 	struct filehdr fileheader;
+ 	struct sfasl_info sfasl_info_buf;
+ #ifdef COFF
+@@ -195,7 +195,7 @@ object faslfile;
+ 	symbol_table =
+ 	  (struct syment *) OUR_ALLOCA(sizeof(struct syment)*
+ 					(unsigned int)nsyms);
+-	fseek(fp,(int)( N_SYMOFF(fileheader)),  0);
++	fseeko(fp,(off_t)( N_SYMOFF(fileheader)),  0);
+ 	{
+ 	for (i = 0;  i < nsyms;  i++)
+ 	  { fread((char *)&symbol_table[i], SYMESZ, 1, fp);
+@@ -206,7 +206,7 @@ object faslfile;
+ 	    symbol_table[i].n_un.n_strx = string_size;
+ 	    dprintf(string_size %d, string_size);
+ 	    string_size += symbol_table[i].n_length + 1;
+-	    fseek(fp,(int)symbol_table[i].n_length,1);
++	    fseeko(fp,(off_t)symbol_table[i].n_length,1);
+ #endif
+ 	  }
+        }
+@@ -223,13 +223,13 @@ my_string_table=READ_IN_STRING_TABLE(fp,
+ 
+ #else  
+ #ifdef MUST_SEEK_TO_STROFF
+-  fseek(fp,N_STROFF(fileheader),0);
++  fseeko(fp,N_STROFF(fileheader),0);
+ #endif	
+   {int ii=0;
+ 	if (!fread((char *)&ii,sizeof(int),1,fp))
+           {FEerror("The string table of this file did not have any length",0,
+ 		   0);}
+-	    fseek(fp,-4,1);
++	    fseeko(fp,-4,1);
+ 	    /* at present the string table is located just after the symbols */
+ 	    my_string_table=OUR_ALLOCA((unsigned int)ii);
+ 	    dprintf( string table leng = %d, ii);
+@@ -246,7 +246,7 @@ SEEK_TO_END_OFILE(fp);
+ 	ungetc(i, fp);
+ #endif
+ 	
+-	fasl_vector_start=ftell(fp);
++	fasl_vector_start=ftello(fp);
+ 
+    if (!((c_table.ptable) && *(c_table.ptable)))
+      build_symbol_table();
+@@ -278,7 +278,7 @@ SEEK_TO_END_OFILE(fp);
+ #endif
+ 
+ 	dprintf( code size %d , datasize+textsize+bsssize + extra_bss);
+-	if (fseek(fp,N_TXTOFF(fileheader) ,0) < 0)
++	if (fseeko(fp,N_TXTOFF(fileheader) ,0) < 0)
+ 		FEerror("file seek error",0,0);
+ 	SAFE_FREAD(the_start, textsize + datasize, 1, fp);
+ 	dprintf(read into memory text +data %d bytes, textsize + datasize);
+@@ -292,7 +292,7 @@ SEEK_TO_END_OFILE(fp);
+   {int j=0;
+      for(j=1; j< BSS_NSCN ; j++)
+        { dprintf( relocating section %d \n,j);
+-	if (section[j].s_nreloc) fseek(fp,section[j].s_relptr,0);
++	if (section[j].s_nreloc) fseeko(fp,section[j].s_relptr,0);
+         for(i=0; i < section[j].s_nreloc; i++)
+ 	  { struct syment *sym;
+ 	    fread(&relocation_info, RELSZ, 1, fp);
+@@ -311,7 +311,7 @@ SEEK_TO_END_OFILE(fp);
+   {int j=0;
+      for(j=1; j< BSS_NSCN ; j++)
+        { dprintf( relocating section %d \n,j);
+-	if (section[j].s_nreloc) fseek(fp,section[j].s_relptr,0);
++	if (section[j].s_nreloc) fseeko(fp,section[j].s_relptr,0);
+ #ifdef ADJUST_RELOC_START
+ ADJUST_RELOC_START(j)
+ #endif  
+@@ -323,7 +323,7 @@ ADJUST_RELOC_START(j)
+         }};
+ #endif
+ #ifdef BSD
+-	 fseek(fp,N_RELOFF(fileheader),0);
++	 fseeko(fp,N_RELOFF(fileheader),0);
+ 	{int nrel = (fileheader.a_trsize/sizeof(struct reloc));
+ 	 for (i=0; i < nrel; i++)
+ 	   {fread((char *)&relocation_info, sizeof(struct reloc),
+@@ -333,7 +333,7 @@ ADJUST_RELOC_START(j)
+ 		}
+ 	}
+ #ifdef N_DRELOFF
+-	 fseek (fp, N_DRELOFF(fileheader), 0);
++	 fseeko (fp, N_DRELOFF(fileheader), 0);
+ #endif
+ 	 {int nrel = (fileheader.a_drsize/sizeof(struct reloc));
+ 	  the_start += fileheader.a_text;
+@@ -354,7 +354,7 @@ ADJUST_RELOC_START(j)
+        dprintf( datasize is %x,datasize);
+ 
+ /* read in the fasl vector */
+-	fseek(fp,fasl_vector_start,0);
++	fseeko(fp,fasl_vector_start,0);
+         if (feof(fp))
+ 	  {data=0;}
+          else{
+--- ./o/file.d.orig	2013-05-11 14:29:11.000000000 -0600
++++ ./o/file.d	2013-05-31 16:44:36.727101429 -0600
+@@ -410,7 +410,7 @@ object if_exists, if_does_not_exist;
+ 				  FEerror("Cannot write pipe output to temporary file",0);
+ 			      if (pclose(pp)<0)
+ 				FEerror("Cannot close zcat pipe",0);
+-			      if (fseek(fp,0,SEEK_SET))
++			      if (fseeko(fp,0,SEEK_SET))
+ 				FEerror("Cannot rewind temporary file\n",0); 
+ 			      goto AGAIN;
+ 			    }
+@@ -1321,7 +1321,7 @@ BEGIN:
+ 	}
+ }
+ 
+-int
++off_t
+ file_position(strm)
+ object strm;
+ {
+@@ -1333,7 +1333,7 @@ BEGIN:
+ 		/*  return(strm->sm.sm_int0);  */
+ 		if (strm->sm.sm_fp == NULL)
+ 			closed_stream(strm);
+-		return(ftell(strm->sm.sm_fp));
++		return(ftello(strm->sm.sm_fp));
+ 	case smm_socket:
+ 	   return -1;
+ 	  
+@@ -1364,7 +1364,7 @@ BEGIN:
+ int
+ file_position_set(strm, disp)
+ object strm;
+-int disp;
++off_t disp;
+ {
+ BEGIN:
+ 	switch (strm->sm.sm_mode) {
+@@ -1374,7 +1374,7 @@ BEGIN:
+ 	case smm_output:
+ 	case smm_io:
+ 
+-		if (fseek(strm->sm.sm_fp, disp, 0) < 0)
++		if (fseeko(strm->sm.sm_fp, disp, 0) < 0)
+ 			return(-1);
+ 		/* strm->sm.sm_int0 = disp; */
+ 		return(0);
+@@ -1410,7 +1410,7 @@ BEGIN:
+ 	}
+ }
+ 
+-static int
++static off_t
+ file_length(strm)
+ object strm;
+ {
+@@ -1773,14 +1773,14 @@ LFD(Lstream_element_type)()
+ @)
+ 
+ @(defun file_position (file_stream &o position)
+-	int i=0;
++	off_t i=0;
+ @
+ 	check_type_stream(&file_stream);
+ 	if (position == Cnil) {
+ 		i = file_position(file_stream);
+ 		if (i < 0)
+ 			@(return Cnil)
+-		@(return `make_fixnum(i)`)
++		@(return `C_INT_TO_OBJ(i)`)
+ 	} else {
+ 		if (position == sKstart)
+ 			i = 0;
+@@ -1807,7 +1807,7 @@ LFD(Lfile_length)()
+ 	if (i < 0)
+ 		vs_base[0] = Cnil;
+ 	else
+-		vs_base[0] = make_fixnum(i);
++		vs_base[0] = C_INT_TO_OBJ(i);
+ }
+ 
+ object sSAload_pathnameA;
+@@ -2706,22 +2706,22 @@ read_fasl_data(const char *str) {
+ #ifdef BSD
+ 	fp = faslfile->sm.sm_fp;
+ 	fread(&header, sizeof(header), 1, fp);
+-	fseek(fp,
++	fseeko(fp,
+ 	      header.a_text+header.a_data+
+ 	      header.a_syms+header.a_trsize+header.a_drsize,
+ 	      1);
+ 	fread(&i, sizeof(i), 1, fp);
+-	fseek(fp, i - sizeof(i), 1);
++	fseeko(fp, i - sizeof(i), 1);
+ #endif
+ 
+ #ifdef HAVE_FILEHDR
+ 	fp = faslfile->sm.sm_fp;
+ 	fread(&fileheader, sizeof(fileheader), 1, fp);
+-	fseek(fp,
++	fseeko(fp,
+ 	      fileheader.f_symptr+fileheader.f_nsyms*SYMESZ,
+ 	      0);
+ 	fread(&i, sizeof(i), 1, fp);
+-	fseek(fp, i - sizeof(i), 1);
++	fseeko(fp, i - sizeof(i), 1);
+ 	while ((i = getc(fp)) == 0)
+ 		;
+ 	ungetc(i, fp);
+@@ -2730,7 +2730,7 @@ read_fasl_data(const char *str) {
+ #ifdef E15
+ 	fp = faslfile->sm.sm_fp;
+ 	fread(&header, sizeof(header), 1, fp);
+-	fseek(fp,
++	fseeko(fp,
+ 	      header.a_text+header.a_data+
+ 	      header.a_syms+header.a_trsize+header.a_drsize,
+ 	      1);
+--- ./o/unexelf.c.orig	2004-05-03 15:35:58.000000000 -0600
++++ ./o/unexelf.c	2013-05-13 14:46:33.928671146 -0600
+@@ -634,7 +634,8 @@ find_section (char *name, char *section_
+ static void
+ unexec (char *new_name, char *old_name, unsigned int data_start, unsigned int bss_start, unsigned int entry_address)
+ {
+-  int new_file, old_file, new_file_size;
++  int new_file, old_file;
++  off_t new_file_size;
+ 
+   /* Pointers to the base of the image of the two files. */
+   caddr_t old_base, new_base;
+@@ -664,7 +665,7 @@ unexec (char *new_name, char *old_name,
+   int old_data_index, new_data2_index;
+   int old_mdebug_index;
+   struct stat stat_buf;
+-  int old_file_size;
++  size_t old_file_size;
+ 
+   /* Open the old file, allocate a buffer of the right size, and read
+      in the file contents.  */
+@@ -687,13 +688,13 @@ unexec (char *new_name, char *old_name,
+      we'd dump our temporary buffers with Emacs, and we'd have to be
+      extra careful to use the correct value of sbrk(0) after
+      allocating all buffers in the code below, which we aren't.  */
+-  old_file_size = stat_buf.st_size;
++  old_file_size = (size_t) stat_buf.st_size;
+   old_base = mmap (NULL, old_file_size, PROT_READ | PROT_WRITE,
+ 		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
+   if (old_base == MAP_FAILED)
+     fatal ("Can't allocate buffer for %s\n", old_name);
+ 
+-  if (read (old_file, old_base, stat_buf.st_size) != stat_buf.st_size)
++  if (read (old_file, old_base, old_file_size) != stat_buf.st_size)
+     fatal ("Didn't read all of %s: errno %d\n", old_name, errno);
+ 
+   /* Get pointers to headers & section names */
+@@ -778,7 +779,7 @@ unexec (char *new_name, char *old_name,
+   if (ftruncate (new_file, new_file_size))
+     fatal ("Can't ftruncate (%s): errno %d\n", new_name, errno);
+ 
+-  new_base = mmap (NULL, new_file_size, PROT_READ | PROT_WRITE,
++  new_base = mmap (NULL, (size_t) new_file_size, PROT_READ | PROT_WRITE,
+ 		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
+   if (new_base == MAP_FAILED)
+     fatal ("Can't allocate buffer for %s\n", old_name);
+@@ -1208,12 +1209,12 @@ unexec (char *new_name, char *old_name,
+ 
+   /* Write out new_file, and free the buffers.  */
+ 
+-  if (write (new_file, new_base, new_file_size) != new_file_size)
+-    fatal ("Didn't write %d bytes to %s: errno %d\n",
+-	   new_file_size, new_base, errno);
++  if (write (new_file, new_base, (size_t) new_file_size) != new_file_size)
++    fatal ("Didn't write %zu bytes to %s: errno %d\n",
++	   (size_t) new_file_size, new_base, errno);
+ 
+   munmap (old_base, old_file_size);
+-  munmap (new_base, new_file_size);
++  munmap (new_base, (size_t) new_file_size);
+ 
+   /* Close the files and make the new file executable.  */
+ 
+--- ./o/fasdump.c.orig	2005-10-05 12:51:55.000000000 -0600
++++ ./o/fasdump.c	2013-05-13 14:46:33.929671144 -0600
+@@ -605,7 +605,7 @@ FFN(open_fasd)(object stream, object dir
+     fd->eof=eof;
+     fd->index=small_fixnum(0);
+     fd->package=symbol_value(sLApackageA);
+-    fd->filepos = make_fixnum(file_position(stream));
++    fd->filepos = C_INT_TO_OBJ(file_position(stream));
+     
+     SETUP_FASD_IN(fd);
+     if (direction==sKoutput){
+@@ -645,7 +645,7 @@ FFN(close_fasd)(object ar)
+        {clrhash(fd->table);
+ 	SETUP_FASD_IN(fd);
+ 	PUT_OP(d_end_of_file);
+-	{int i = file_position(fd->stream);
++	{off_t i = file_position(fd->stream);
+ 	 if(type_of(fd->filepos) == t_fixnum)
+ 	  { file_position_set(fd->stream,fix(fd->filepos) +2);
+ 	    /* record the length of array needed to read the indices */
+--- ./o/unixsave.c.orig	2005-05-06 15:56:56.000000000 -0600
++++ ./o/unixsave.c	2013-05-13 14:46:33.929671144 -0600
+@@ -93,7 +93,7 @@ memory_save(original_file, save_file)
+ char *original_file, *save_file;
+ {	MEM_SAVE_LOCALS;
+ 	char *data_begin, *data_end;
+-	int original_data;
++	off_t original_data = 0;
+ 	FILE *original, *save;
+ 	register int n;
+ 	register char *p;
+@@ -130,7 +130,7 @@ char *original_file, *save_file;
+ 		} else
+ 			break;
+ 
+-	fseek(original, original_data, 1);
++	fseeko(original, original_data, 1);
+ 
+ 	COPY_TO_SAVE;
+ 
+--- ./o/unixfsys.c.orig	2013-01-21 14:18:53.000000000 -0700
++++ ./o/unixfsys.c	2013-05-13 14:46:33.929671144 -0600
+@@ -414,7 +414,7 @@ backup_fopen(char *filename, char *optio
+ 	return(fopen(filename, option));
+ }
+ 
+-int
++off_t
+ file_len(FILE *fp)
+ {
+ 	struct stat filestatus;
+@@ -486,7 +486,7 @@ DEFUN_NEW("STAT",object,fSstat,SI,1,1,NO
+        filename[j-1]=0;*/
+     RETURN1(list(3,S_ISDIR(ss.st_mode) ? sKdirectory : 
+ 		 (S_ISLNK(ss.st_mode) ? sKlink : sKfile),
+-		 make_fixnum(ss.st_size),make_fixnum(ss.st_ctime)));
++		 C_INT_TO_OBJ(ss.st_size),make_fixnum(ss.st_ctime)));
+   }
+ }
+ 
+--- ./unixport/bsd_rsym.c.orig	1999-12-06 15:44:15.000000000 -0700
++++ ./unixport/bsd_rsym.c	2013-05-13 14:46:33.930671142 -0600
+@@ -121,7 +121,7 @@ tab.n_symbols=0;tab.tot_leng=0;
+  symout=fopen(outfile,"w");
+  if (!symout)
+    {perror(outfile); exit(1);};
+- fseek(symout,sizeof(struct lsymbol_table),0);
++ fseeko(symout,sizeof(struct lsymbol_table),0);
+  end = my_symbol_table + NSYMS(my_header);
+  for (p = my_symbol_table; p < end; p++)	{
+    /*
+@@ -146,7 +146,7 @@ tab.n_symbols=0;tab.tot_leng=0;
+    dprintf( index , (int) (p - my_symbol_table)  / sizeof(struct syment));
+    p = p + NUM_AUX(p); }
+  }
+- fseek(symout,0,0);
++ fseeko(symout,0,0);
+  fwrite(&tab,sizeof(tab),1,symout);
+  fclose(symout);
+  return 0;
+--- ./unixport/rsym.c.orig	2002-07-25 15:49:47.000000000 -0600
++++ ./unixport/rsym.c	2013-05-13 14:46:33.930671142 -0600
+@@ -102,7 +102,7 @@ char *filename;
+ 	sizeof(struct syment) and SYMESZ are not always the same.
+ 	*/
+ 
+-	if(fseek(fp,(int)(N_SYMOFF(my_header)),0))
++	if(fseeko(fp,(off_t)(N_SYMOFF(my_header)),0))
+ 	  {fprintf(stderr,"seek error");
+ 					       exit(1);}
+ 
+@@ -113,7 +113,7 @@ char *filename;
+ 		dprintf(string_size %d,string_size);
+ 		symbol_table[i].n_un.n_strx = string_size;
+ 		string_size += symbol_table[i].n_length + 1;
+-		fseek(fp,symbol_table[i].n_length,1);
++		fseeko(fp,symbol_table[i].n_length,1);
+ 	      }
+ #else	
+ 		fread((char *)&symbol_table[i], SYMESZ, 1, fp);
+@@ -127,14 +127,14 @@ char *filename;
+ 	   strings follow symbol table! */
+ #ifndef HPUX
+ #ifdef N_STROFF
+-	fseek(fp,N_STROFF(my_header),0);
++	fseeko(fp,N_STROFF(my_header),0);
+ #endif	
+ 	if (fread((char *)&string_size, 4, 1, fp) > 0)	{
+ 		my_string_table = malloc(string_size);
+                 if(debug)
+-		  {printf(" string_size is %d fseek %d ",string_size,fseek(fp,string_size-1,1));
+-		   printf(" fseek back %d ",fseek(fp,1-string_size,1));};
+-		fseek(fp, -4, 1);
++		  {printf(" string_size is %d fseek %zd ",string_size,fseeko(fp,string_size-1,1));
++		   printf(" fseek back %d ",fseeko(fp,1-string_size,1));};
++		fseeko(fp, -4, 1);
+ 		if(string_size!=(fread(my_string_table, 1, string_size, fp)))
+ 		  {dprintf( string_size was %d ,string_size);
+ 		   perror("rsym could not read bad string table") ;
+@@ -149,10 +149,10 @@ char *filename;
+ 		int slen;
+ 		p = my_string_table=malloc((unsigned int)string_size);
+ 		dprintf( string table leng = %d, string_size);
+-		fseek(fp,(int)( LESYM_OFFSET(my_header)),  0);
++		fseeko(fp,(off_t)( LESYM_OFFSET(my_header)),  0);
+ 		for (i = 0;  i < nsyms; i++)
+ 		{
+-			fseek(fp,SYMESZ, 1);
++			fseeko(fp,SYMESZ, 1);
+ 			slen = symbol_table[i].n_length;
+ 			dprintf( slen = %d,slen);
+ 			fread(p,slen,1,fp);
+@@ -182,7 +182,7 @@ char *out;
+  symout=fopen(out,"wr");
+  if (!symout)
+    {perror(out); exit(1);};
+- fseek(symout,sizeof(struct lsymbol_table),0);
++ fseeko(symout,sizeof(struct lsymbol_table),0);
+  end = symbol_table + nsyms;
+  for (p = symbol_table; p < end; p++)	{
+    /*
+@@ -219,7 +219,7 @@ char *out;
+        dprintf( index , (int) (p - symbol_table)  / sizeof(struct syment));
+        p = p + NUM_AUX(p); }
+  }
+- fseek(symout,0,0);
++ fseeko(symout,0,0);
+  fwrite(&tab,sizeof(tab),1,symout);
+  fclose(symout);
+ #ifdef AIX3
+@@ -323,7 +323,7 @@ char *out;
+   symin=fopen(out,"w");
+   if(symin==0) perror("can't open");
+   fwrite(&tab,sizeof(tab),1,symin);
+-  fseek(symin,sizeof(tab),0);
++  fseeko(symin,sizeof(tab),0);
+   {int i,j;
+    unsigned short k;
+    for (i=0 ; i < tab.n_symbols ; i++)
+--- ./unixport/rsym_elf.c.orig	2004-05-03 15:35:59.000000000 -0600
++++ ./unixport/rsym_elf.c	2013-05-13 14:46:33.930671142 -0600
+@@ -147,7 +147,7 @@ get_section(fp,name)
+   else
+     shndx = get_section_number(name);
+   { 
+-      fseek(fp,SECTION_H(shndx).sh_offset,SEEK_SET);
++      fseeko(fp,SECTION_H(shndx).sh_offset,SEEK_SET);
+       ans = malloc(SECTION_H(shndx).sh_size);
+       fread(ans,SECTION_H(shndx).sh_size,1,fp);
+       return ans;
+@@ -173,7 +173,7 @@ char *filename;
+ 	}
+ 
+ 	fread(&eheader,sizeof(eheader),1,fp);
+-	fseek(fp,eheader.e_ehsize,SEEK_SET);
++	fseeko(fp,eheader.e_ehsize,SEEK_SET);
+ 	fread(&pheader,sizeof(pheader),1,fp);
+ 
+ 	if(ELFMAG0 != eheader.e_ident[0]){
+@@ -182,7 +182,7 @@ char *filename;
+ 
+ 	section_headers = (void *)malloc(sizeof(ElfW(Shdr))*
+ 				 (1+ eheader.e_shnum));
+-	fseek(fp,eheader.e_shoff,0);
++	fseeko(fp,eheader.e_shoff,0);
+ 	for (i=0 ; i< eheader.e_shnum ; i++)
+ 	  fread(&section_headers[i],eheader.e_shentsize,1,fp);
+ 				 
+@@ -196,7 +196,7 @@ char *filename;
+ 	sizeof(struct syment) and SYMESZ are not always the same.
+ 	*/
+ 
+-	if(fseek(fp,(int)SECTION_H(symbol_index).sh_offset,0))
++	if(fseeko(fp,(off_t)SECTION_H(symbol_index).sh_offset,0))
+ 	  {fprintf(stderr,"seek error");
+ 					       exit(1);}
+ 
+@@ -242,7 +242,7 @@ char *out;
+  symout=fopen(out,"wr");
+  if (!symout)
+    {perror(out); exit(1);};
+- fseek(symout,sizeof(struct lsymbol_table),0);
++ fseeko(symout,sizeof(struct lsymbol_table),0);
+  end = symbol_table + nsyms;
+  for (p = symbol_table; p < end; p++)	{
+    /*
+@@ -300,7 +300,7 @@ char *out;
+        dprintf( index , (int) (p - symbol_table)  / sizeof(STRUCT_SYMENT));
+        p = p + NUM_AUX(p); }
+  }
+- fseek(symout,0,0);
++ fseeko(symout,0,0);
+  fwrite(&tab,sizeof(tab),1,symout);
+  fclose(symout);
+ #ifdef AIX3
+--- ./configure.in.orig	2013-05-10 08:26:52.000000000 -0600
++++ ./configure.in	2013-05-13 14:46:51.387638090 -0600
+@@ -425,7 +425,7 @@ AC_USE_SYSTEM_EXTENSIONS
+ AC_PROG_CC
+ AC_PROG_CPP
+ AC_SUBST(CC)
+-
++AC_SYS_LARGEFILE
+ 
+ # can only test for numbers -- CM
+ # if test "${GCC}" -eq "yes" ; then
+--- ./configure.orig	2013-05-10 10:23:17.000000000 -0600
++++ ./configure	2013-05-13 14:46:55.322630640 -0600
+@@ -763,6 +763,7 @@ enable_static
+ enable_pic
+ enable_oldgmp
+ enable_dynsysgmp
++enable_largefile
+ with_x
+ enable_readline
+ enable_ansi
+@@ -1428,6 +1429,7 @@ Optional Features:
+ 
+  --enable-dynsysgmp will link against the system libgmp3 overriding certain functions with patched versions from the local source
+ 
++  --disable-largefile     omit support for large files
+ --enable-readline    enables command line completion via the readline library
+ --enable-ansi builds a large gcl aiming for ansi compliance,
+ 		    --disable-ansi builds the smaller traditional CLtL1 image
+@@ -5067,6 +5069,205 @@ ac_link='$CC -o conftest$ac_exeext $CFLA
+ ac_compiler_gnu=$ac_cv_c_compiler_gnu
+ 
+ 
++# Check whether --enable-largefile was given.
++if test "${enable_largefile+set}" = set; then :
++  enableval=$enable_largefile;
++fi
++
++if test "$enable_largefile" != no; then
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for special C compiler options needed for large files" >&5
++$as_echo_n "checking for special C compiler options needed for large files... " >&6; }
++if ${ac_cv_sys_largefile_CC+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_cv_sys_largefile_CC=no
++     if test "$GCC" != yes; then
++       ac_save_CC=$CC
++       while :; do
++	 # IRIX 6.2 and later do not support large files by default,
++	 # so use the C compiler's -n32 option if that helps.
++	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <sys/types.h>
++ /* Check that off_t can represent 2**63 - 1 correctly.
++    We can't simply define LARGE_OFF_T to be 9223372036854775807,
++    since some C++ compilers masquerading as C compilers
++    incorrectly reject 9223372036854775807.  */
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
++  int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
++		       && LARGE_OFF_T % 2147483647 == 1)
++		      ? 1 : -1];
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++	 if ac_fn_c_try_compile "$LINENO"; then :
++  break
++fi
++rm -f core conftest.err conftest.$ac_objext
++	 CC="$CC -n32"
++	 if ac_fn_c_try_compile "$LINENO"; then :
++  ac_cv_sys_largefile_CC=' -n32'; break
++fi
++rm -f core conftest.err conftest.$ac_objext
++	 break
++       done
++       CC=$ac_save_CC
++       rm -f conftest.$ac_ext
++    fi
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sys_largefile_CC" >&5
++$as_echo "$ac_cv_sys_largefile_CC" >&6; }
++  if test "$ac_cv_sys_largefile_CC" != no; then
++    CC=$CC$ac_cv_sys_largefile_CC
++  fi
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _FILE_OFFSET_BITS value needed for large files" >&5
++$as_echo_n "checking for _FILE_OFFSET_BITS value needed for large files... " >&6; }
++if ${ac_cv_sys_file_offset_bits+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  while :; do
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <sys/types.h>
++ /* Check that off_t can represent 2**63 - 1 correctly.
++    We can't simply define LARGE_OFF_T to be 9223372036854775807,
++    since some C++ compilers masquerading as C compilers
++    incorrectly reject 9223372036854775807.  */
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
++  int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
++		       && LARGE_OFF_T % 2147483647 == 1)
++		      ? 1 : -1];
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_cv_sys_file_offset_bits=no; break
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#define _FILE_OFFSET_BITS 64
++#include <sys/types.h>
++ /* Check that off_t can represent 2**63 - 1 correctly.
++    We can't simply define LARGE_OFF_T to be 9223372036854775807,
++    since some C++ compilers masquerading as C compilers
++    incorrectly reject 9223372036854775807.  */
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
++  int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
++		       && LARGE_OFF_T % 2147483647 == 1)
++		      ? 1 : -1];
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_cv_sys_file_offset_bits=64; break
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  ac_cv_sys_file_offset_bits=unknown
++  break
++done
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sys_file_offset_bits" >&5
++$as_echo "$ac_cv_sys_file_offset_bits" >&6; }
++case $ac_cv_sys_file_offset_bits in #(
++  no | unknown) ;;
++  *)
++cat >>confdefs.h <<_ACEOF
++#define _FILE_OFFSET_BITS $ac_cv_sys_file_offset_bits
++_ACEOF
++;;
++esac
++rm -rf conftest*
++  if test $ac_cv_sys_file_offset_bits = unknown; then
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _LARGE_FILES value needed for large files" >&5
++$as_echo_n "checking for _LARGE_FILES value needed for large files... " >&6; }
++if ${ac_cv_sys_large_files+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  while :; do
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <sys/types.h>
++ /* Check that off_t can represent 2**63 - 1 correctly.
++    We can't simply define LARGE_OFF_T to be 9223372036854775807,
++    since some C++ compilers masquerading as C compilers
++    incorrectly reject 9223372036854775807.  */
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
++  int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
++		       && LARGE_OFF_T % 2147483647 == 1)
++		      ? 1 : -1];
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_cv_sys_large_files=no; break
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#define _LARGE_FILES 1
++#include <sys/types.h>
++ /* Check that off_t can represent 2**63 - 1 correctly.
++    We can't simply define LARGE_OFF_T to be 9223372036854775807,
++    since some C++ compilers masquerading as C compilers
++    incorrectly reject 9223372036854775807.  */
++#define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
++  int off_t_is_large[(LARGE_OFF_T % 2147483629 == 721
++		       && LARGE_OFF_T % 2147483647 == 1)
++		      ? 1 : -1];
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  ac_cv_sys_large_files=1; break
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++  ac_cv_sys_large_files=unknown
++  break
++done
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sys_large_files" >&5
++$as_echo "$ac_cv_sys_large_files" >&6; }
++case $ac_cv_sys_large_files in #(
++  no | unknown) ;;
++  *)
++cat >>confdefs.h <<_ACEOF
++#define _LARGE_FILES $ac_cv_sys_large_files
++_ACEOF
++;;
++esac
++rm -rf conftest*
++  fi
++
++
++fi
+ 
+ 
+ # can only test for numbers -- CM

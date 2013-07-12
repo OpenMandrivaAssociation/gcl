@@ -1,6 +1,25 @@
---- configure.orig	2010-12-30 11:26:12.887486517 -0700
-+++ configure	2010-12-30 11:34:19.000000000 -0700
-@@ -8130,7 +8130,8 @@ done
+--- ./configure.in.orig	2013-05-10 08:26:52.000000000 -0600
++++ ./configure.in	2013-05-10 08:26:52.000000000 -0600
+@@ -1644,7 +1644,7 @@ AC_MSG_RESULT(no))
+ 
+ #if test $use = "386-linux" ; then
+ 	AC_CHECK_HEADERS(asm/sigcontext.h)
+-	AC_CHECK_HEADERS(asm/signal.h)
++	AC_CHECK_HEADERS(asm/signal.h, [], [], [#define __ASSEMBLY__])
+ 	AC_MSG_CHECKING([for sigcontext])
+ 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	#include <signal.h>
+@@ -1669,6 +1669,7 @@ AC_MSG_RESULT(no))
+              #include <asm/sigcontext.h>
+              #endif
+              #ifdef HAVE_ASM_SIGNAL_H          
++             #define __ASSEMBLY__
+              #include <asm/signal.h>
+              #endif
+           ]],
+--- ./configure.orig	2013-05-10 10:19:55.934751565 -0600
++++ ./configure	2013-05-10 10:23:17.965432496 -0600
+@@ -8335,7 +8335,8 @@ done
  
  	for ac_header in asm/signal.h
  do :
@@ -10,7 +29,7 @@
  if test "x$ac_cv_header_asm_signal_h" = xyes; then :
    cat >>confdefs.h <<_ACEOF
  #define HAVE_ASM_SIGNAL_H 1
-@@ -8183,6 +8184,7 @@ $as_echo_n "checking for sigcontext... "
+@@ -8388,6 +8389,7 @@ $as_echo_n "checking for sigcontext... "
               #include <asm/sigcontext.h>
               #endif
               #ifdef HAVE_ASM_SIGNAL_H
@@ -18,24 +37,3 @@
               #include <asm/signal.h>
               #endif
  
---- configure.in.orig	2010-12-30 11:26:02.886682117 -0700
-+++ configure.in	2010-12-30 11:31:34.000000000 -0700
-@@ -1592,7 +1592,7 @@ AC_MSG_RESULT(no))
- 
- #if test $use = "386-linux" ; then
- 	AC_CHECK_HEADERS(asm/sigcontext.h)
--	AC_CHECK_HEADERS(asm/signal.h)
-+	AC_CHECK_HEADERS(asm/signal.h, [], [], [#define __ASSEMBLY__])
- 	AC_MSG_CHECKING([for sigcontext])
-         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
- 	#include <signal.h>
-@@ -1616,7 +1616,8 @@ AC_MSG_RESULT(no))
-              #ifdef HAVE_ASM_SIGCONTEXT_H     
-              #include <asm/sigcontext.h>
-              #endif
--             #ifdef HAVE_ASM_SIGNAL_H          
-+             #ifdef HAVE_ASM_SIGNAL_H
-+             #define __ASSEMBLY__
-              #include <asm/signal.h>
-              #endif
-           ]],

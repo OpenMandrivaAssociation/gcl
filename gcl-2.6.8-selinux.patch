@@ -40,8 +40,8 @@ diff -durpN gcl-2.6.8.ORIG/selinux/gcl.fc gcl-2.6.8/selinux/gcl.fc
 @@ -0,0 +1,5 @@
 +/usr/lib64/gcl-[^/]+/unixport/saved_.*	--	gen_context(system_u:object_r:gcl_exec_t,s0)
 +/usr/lib/gcl-[^/]+/unixport/saved_.*	--	gen_context(system_u:object_r:gcl_exec_t,s0)
-+/usr/lib/maxima/[^/]+/binary-gcl	--	gen_context(system_u:object_r:gcl_exec_t,s0)
-+/usr/lib64/maxima/[^/]+/binary-gcl	--	gen_context(system_u:object_r:gcl_exec_t,s0)
++/usr/lib/maxima/[^/]+/binary-gcl/maxima --	gen_context(system_u:object_r:gcl_exec_t,s0)
++/usr/lib64/maxima/[^/]+/binary-gcl/maxima --	gen_context(system_u:object_r:gcl_exec_t,s0)
 +
 diff -durpN gcl-2.6.8.ORIG/selinux/gcl.if gcl-2.6.8/selinux/gcl.if
 --- gcl-2.6.8.ORIG/selinux/gcl.if	1969-12-31 17:00:00.000000000 -0700

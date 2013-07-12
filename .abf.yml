@@ -1,4 +1,4 @@
 sources:
-  "gcl-2.6.8-info.tar.xz": 1432f14522d30b802be8635771eb2338a74729f2
-  "gcl-2.6.8.tar.xz": e62d3afc8813228cde4c3c60c120a9ca436729e3
-  "gcl.el": 122e55d0adae8da51c42837f3b42f532e0e723ae
+  gcl-2.6.8.tar.xz: febf2e71def79b5ad47e05e253ff497e88c687a0
+  gcl-2.6.8-info.tar.xz: 1432f14522d30b802be8635771eb2338a74729f2
+  gcl.el: 122e55d0adae8da51c42837f3b42f532e0e723ae
