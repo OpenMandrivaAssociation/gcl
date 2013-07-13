@@ -104,9 +104,8 @@ BuildRequires:	binutils-devel
 BuildRequires:	tk-devel
 BuildRequires:	tcl-devel
 BuildRequires:	gmp-devel
-BuildRequires:	texlive-latex
-BuildRequires:	texlive-dvipdfm
 BuildRequires:	texinfo
+BuildRequires:	texlive
 BuildRequires:	emacs-bin, emacs-el
 BuildRequires:	xaw-devel
 %if %{with_xemacs}
