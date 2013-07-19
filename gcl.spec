@@ -98,6 +98,7 @@ Patch15:        %{name}-2.6.8-man.patch
 Patch16:        %{name}-2.6.8-reloc-type.patch
 # This patch is still experimental.  Enable large file support.
 Patch17:        %{name}-2.6.8-largefile.patch
+Patch18:	%{name}-2.6.8-tcl8.6.patch
 
 BuildRequires:	readline-devel
 BuildRequires:	binutils-devel
@@ -207,6 +208,7 @@ gcl_exec_t.
 %patch15
 %patch16
 %patch17
+%patch18 -p1
 
 # Don't let the configure script add compiler flags we don't want
 sed -e 's/"-fomit-frame-pointer"/""/' \
@@ -231,7 +233,7 @@ chmod a+x o/egrep-def utils/replace xbin/*
 %build
 ln -sf %{_bindir}/ld.bfd bin/ld
 export PATH=$PWD/bin:$PATH
-CFLAGS="-O2 -g -pipe -fPIC -fuse-ld=bfd"
+CFLAGS="-O2 -g -pipe -fuse-ld=bfd"
 
 %ifarch %ix86
 CFLAGS="$CFLAGS -fno-omit-frame-pointer"
@@ -239,7 +241,7 @@ CFLAGS="$CFLAGS -fno-omit-frame-pointer"
 
 export CFLAGS
 %configure2_5x --enable-readline --enable-ansi --enable-dynsysgmp --enable-xgcl \
-  --enable-statsysbfd --disable-custreloc --enable-pic \
+  --enable-statsysbfd --disable-custreloc --disable-pic \
   --enable-tclconfig=%{_libdir} --enable-tkconfig=%{_libdir}
 # FIXME: %%{?_smp_mflags} breaks the build
 make 
@@ -280,7 +282,7 @@ cp -pfr elisp/* %{buildroot}%{emacs_lispdir}/gcl
 rm -f %{buildroot}%{emacs_lispdir}/gcl/makefile
 rm -f %{buildroot}%{emacs_lispdir}/gcl/readme
 mkdir -p %{buildroot}%{emacs_lispdir}/site-start.d
-sed -e "s|%LISP_DIR%|%{emacs_lispdir}|" %{SOURCE1} > %{emacs_lispdir}/site-start.d/gcl.el
+sed -e "s|%LISP_DIR%|%{emacs_lispdir}|" %{SOURCE1} > %{buildroot}%{emacs_lispdir}/site-start.d/gcl.el
 pushd %{buildroot}%{emacs_lispdir}/gcl
 emacs -batch -no-site-file --eval "(push \"`pwd`\" load-path)" \
   -f batch-byte-compile *.el
