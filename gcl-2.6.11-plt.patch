@@ -1,0 +1,45 @@
+--- gcl/o/plt.c.orig	2014-10-23 15:29:00.000000000 -0600
++++ gcl/o/plt.c	2020-01-31 11:58:41.003563790 -0700
+@@ -102,6 +102,12 @@ arsearch(const void *v1,const void *v2)
+ 
+ }
+ 
++/* Parser states */
++#define NOTHING 0 /* initial state */
++#define PLT     1 /* reading plt */
++#define NEWLINE 2 /* reading empty line after .iplt */
++#define IPLT    3 /* reading iplt */
++
+ int
+ parse_plt() {
+ 
+@@ -132,15 +138,24 @@ parse_plt() {
+     return 0;
+   if (!(f=fopen(b1,"r")))
+     FEerror("Cannot open map file", 0);
+-  for (i=j=0,li=Cnil;fgets(b,sizeof(b),f);) {
++  for (i=NOTHING,j=0,li=Cnil;fgets(b,sizeof(b),f);) {
+     if (!memchr(b,10,sizeof(b)-1))
+       FEerror("plt buffer too small", 0);
+-    if (!memcmp(b," .plt",4)) {
+-      i=1;
++    if (i == NOTHING) {
++      if (memcmp(b," .plt",5) == 0)
++	i = PLT;
++      else if (memcmp(b," .iplt",6) == 0)
++	i = NEWLINE;
+       continue;
+     }
+-    if (*b!=' ' || b[1]!=' ' || !i) {
+-      i=0;
++    if (*b=='\r' || *b=='\n') {
++      i = (i == NEWLINE) ? PLT : NOTHING;
++      continue;
++    }
++    if (b[1] != ' ') {
++      /* There is at least one "annotation" line before the iplt information */
++      if (i != NEWLINE)
++	i = NOTHING;
+       continue;
+     }
+     if (sscanf(b,"%lx%n",&u,&n)!=1)

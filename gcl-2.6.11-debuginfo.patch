@@ -1,0 +1,21 @@
+--- gcl/o/makefile.orig	2022-08-08 14:54:29.976965708 -0600
++++ gcl/o/makefile	2022-08-08 15:09:45.995300639 -0600
+@@ -48,7 +48,6 @@ prelink.o: prelink.c $(DECL)
+ %.o: %.d $(DECL)
+ 	$(DPP) $*
+ 	$(CC) -c $(CFLAGS) $(DEFS) $*.c $(AUX_INFO)
+-	rm $*.c
+ 
+ boot.ini: boot.c grab_defs
+ 	$(CC) -DINICOMP -DNO_DEFUN -DNO_BOOT_H $(CFLAGS) $(DEFS) -E $*.c |\
+--- gcl/xgcl-2/sysdef.lisp.orig	2022-08-08 14:54:39.488988419 -0600
++++ gcl/xgcl-2/sysdef.lisp	2022-08-08 15:09:45.995300639 -0600
+@@ -54,7 +54,7 @@
+ 	    (progn (print "qemu/readdir issue still present")
+ 		   (mapcar (lambda (x) (truename (merge-pathnames ".c" x))) '("XStruct-4" "general-c" "Xutil-2" "Events" "XStruct-2")))))
+   (mapc (lambda (x)
+-	  (compile-file (format nil "~a.lsp" x) :system-p t)) *files*))
++	  (compile-file (format nil "~a.lsp" x) :c-file t :h-file t :system-p t)) *files*))
+ 
+ 
+ (defun load-xgcl()

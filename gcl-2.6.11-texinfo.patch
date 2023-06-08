@@ -1,0 +1,60 @@
+--- gcl/info/gcl-si.texi.orig	2014-10-23 15:29:00.000000000 -0600
++++ gcl/info/gcl-si.texi	2021-02-01 12:01:17.148372900 -0700
+@@ -10,6 +10,7 @@
+ 
+ @c @smallbook
+ @setfilename gcl-si.info
++@settitle GCL SI Manual
+ @synindex vr fn
+ 
+ @c to update the menus do: 
+@@ -20,7 +21,7 @@
+ @setchapternewpage odd
+ @dircategory GNU Common Lisp
+ @direntry 
+-* gcl-si: (gcl-si.info). GNU Common Lisp System Internals
++* gcl-si: (gcl-si).	GNU Common Lisp System Internals.
+ @end direntry
+ 
+ @ifinfo
+--- gcl/info/gcl.texi.orig	2021-02-01 11:52:07.385256164 -0700
++++ gcl/info/gcl.texi	2021-02-01 12:02:04.668296558 -0700
+@@ -12,14 +12,13 @@ for Common Lisp.
+ 
+ Copyright 1994 William F. Schelter
+ 
+-@format
+-INFO-DIR-SECTION GNU Common Lisp
+-START-INFO-DIR-ENTRY
+-* gcl: (gcl.info). GNU Common Lisp Manual
+-END-INFO-DIR-ENTRY
+-@end format
+ @end ifinfo
+ 
++@dircategory GNU Common Lisp
++@direntry
++* gcl: (gcl).	GNU Common Lisp Manual.
++@end direntry
++
+ @titlepage
+ @sp 10
+ @comment The title is printed in a large font.
+--- gcl/info/gcl-tk.texi.orig	2014-10-23 15:29:00.000000000 -0600
++++ gcl/info/gcl-tk.texi	2021-02-01 12:03:00.139207451 -0700
+@@ -10,6 +10,7 @@
+ 
+ @c @smallbook
+ @setfilename gcl-tk.info
++@settitle GCL TK Manual
+ @synindex vr fn
+ 
+ @c to update the menus do: 
+@@ -20,7 +21,7 @@
+ @setchapternewpage odd
+ @dircategory GNU Common Lisp
+ @direntry 
+-* gcl-tk: (gcl-tk.info). GNU TK Manual
++* gcl-tk: (gcl-tk).	GNU Common Lisp TK Manual.
+ @end direntry
+ 
+ @ifinfo

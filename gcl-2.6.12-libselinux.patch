@@ -1,0 +1,202 @@
+--- gcl-2.6.14/ansi-tests/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/ansi-tests/makefile	2023-01-17 11:57:22.236144493 -0700
+@@ -1,10 +1,10 @@
+ -include ../makedefs
+ 
+ test-unixport:
+-	echo "(load \"gclload.lsp\")" | ../unixport/saved_ansi_gcl$(EXE) | tee test.out
++	echo "(load \"gclload.lsp\")" | setarch -RX ../unixport/saved_ansi_gcl$(EXE) | tee test.out
+ 
+ test:
+-	echo "(load \"gclload.lsp\")" | gcl | tee test.out
++	echo "(load \"gclload.lsp\")" | setarch -RX gcl | tee test.out
+ 
+ clean:
+ 	rm -f test.out *.fasl *.o *.so *~ *.fn *.x86f *.fasl *.ufsl
+--- gcl-2.6.14/clcs/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/clcs/makefile	2023-01-17 11:57:22.236144493 -0700
+@@ -8,11 +8,11 @@ FILES:=$(shell ls -1 gcl_clcs_*.lisp | s
+ all: $(addsuffix .c,$(FILES)) $(addsuffix .o,$(FILES))
+ 
+ saved_clcs_gcl: ../unixport/saved_pcl_gcl$(EXE)
+-	echo '(load "package.lisp")(load "myload.lisp")(si::save-system "$@")' | $< $(<D)/
++	echo '(load "package.lisp")(load "myload.lisp")(si::save-system "$@")' | setarch -RX $< $(<D)/
+ 
+ %.h %.data %.c : %.lisp saved_clcs_gcl
+ 	cp ../h/cmpinclude.h .
+-	$(COMPILE_FILE) $<
++	setarch -RX $(COMPILE_FILE) $<
+ 
+ %.o: %.c %.h %.data
+ 	$(CC) $(CFLAGS) -c $< -o $@
+@@ -27,10 +27,10 @@ sys-proclaim.lisp: $(addsuffix .fn,$(FIL
+ 	'(compiler::make-all-proclaims "*.fn")' | ../xbin/gcl
+ 
+ compile: ${LISP}
+-	echo '(load "package.lisp")(load "loading.lisp")(jamie-load-clcs :compile)' | ${LISP}
++	echo '(load "package.lisp")(load "loading.lisp")(jamie-load-clcs :compile)' | setarch -RX ${LISP}
+ 
+ saved_full_gcl: ${LISP}
+-	echo '(load "package.lisp")(load "loading.lisp")(jamie-load-clcs :compiled)(system::save-system "saved_full_gcl")' | ${LISP}
++	echo '(load "package.lisp")(load "loading.lisp")(jamie-load-clcs :compiled)(system::save-system "saved_full_gcl")' | setarch -RX ${LISP}
+ 
+ clean:
+ 	rm -f *.o *.fn saved_full_gcl$(EXE) saved_full_gcl cmpinclude.h *.c *.h *.data saved_clcs_gcl$(EXE)
+--- gcl-2.6.14/cmpnew/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/cmpnew/makefile	2023-01-17 11:57:22.237144465 -0700
+@@ -19,7 +19,7 @@ LISP=$(PORTDIR)/saved_pre_gcl$(EXE)
+ COMPILE_FILE=$(LISP) $(PORTDIR) -system-p -c-file -data-file -h-file -compile
+ 
+ %.o: $(PORTDIR)/saved_pre_gcl$(EXE) %.lsp
+-	$(COMPILE_FILE) $*
++	setarch -RX $(COMPILE_FILE) $*
+ 
+ all:	$(OBJS)
+ 
+@@ -32,16 +32,16 @@ fns:	../cmpnew/gcl_collectfn.o
+ 	$(MAKE) fns1 -e "FNS=`echo ${OBJS} | sed -e 's:\.o:\.fn:g'`"
+ 
+ gcl_collectfn.o:
+-	$(PORTDIR)/saved_pre_gcl$(EXE) $(PORTDIR)/ -compile $*.lsp
++	setarch -RX $(PORTDIR)/saved_pre_gcl$(EXE) $(PORTDIR)/ -compile $*.lsp
+ 
+ .lisp.o:
+ 	@ ../xbin/if-exists $(PORTDIR)/saved_pre_gcl$(EXE) \
+-	"$(PORTDIR)/saved_pre_gcl$(EXE) $(PORTDIR)/ -compile $*.lisp " 
++	"setarch -RX $(PORTDIR)/saved_pre_gcl$(EXE) $(PORTDIR)/ -compile $*.lisp "
+ 
+ sys-proclaim.lisp: fns
+ 	echo '(in-package "COMPILER")' \
+ 	'(load "../cmpnew/gcl_collectfn")(load "../lsp/sys-proclaim.lisp")'\
+-	'(compiler::make-all-proclaims "*.fn")' | ../xbin/gcl
++	'(compiler::make-all-proclaims "*.fn")' | setarch -RX ../xbin/gcl
+ 
+ 
+ newfn:	
+--- gcl-2.6.14/comp/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/comp/makefile	2023-01-17 11:57:22.237144465 -0700
+@@ -4,16 +4,16 @@ LISP=../unixport/saved_kcl
+ LOAD='(load "sysdef.lsp")(make::make :bcomp :compile t)'
+ 
+ all:
+-	echo ${LOAD} | ${LISP}
++	echo ${LOAD} | setarch -RX ${LISP}
+ 
+ 
+ tests:
+ 	echo ${LOAD}'(load "try1")(load "../tests/all-tests.lsp")(in-package "BCOMP")(do-some-tests)' \
+-	'(test-sloop)' | ${LISP}
++	'(test-sloop)' | setarch -RX ${LISP}
+ 
+ 
+ test1:
+-	echo '(load "../tests/try-comp")' | ${LISP}
++	echo '(load "../tests/try-comp")' | setarch -RX ${LISP}
+ 
+ 
+ TFILES=src/makefile comp/makefile unixport/makefile o/makefile \
+--- gcl-2.6.14/gcl-tk/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/gcl-tk/makefile	2023-01-17 11:57:22.237144465 -0700
+@@ -22,13 +22,13 @@ CFLAGS1=$(CFLAGS) -I../o -I../h ${TK_INC
+ 
+ all: gcltksrv   tkl.o tinfo.o  demos/gc-monitor.o gcltkaux
+ 	(cd demos ; \
+-	echo '(load "../tkl.o")(TK::GET-AUTOLOADS (directory "*.lisp"))' | ../../unixport/$(FLISP)) 
++	echo '(load "../tkl.o")(TK::GET-AUTOLOADS (directory "*.lisp"))' | setarch -RX ../../unixport/$(FLISP))
+ 
+ .lisp.o:
+-	echo "(compile-file \"$*.lisp\" :c-file nil :c-debug nil)" | ../unixport/$(FLISP)
++	echo "(compile-file \"$*.lisp\" :c-file nil :c-debug nil)" | setarch -RX ../unixport/$(FLISP)
+ 
+ .lsp.o:
+-	echo "(compile-file \"$*.lsp\" :c-file nil :c-debug nil)" | ../unixport/$(FLISP)
++	echo "(compile-file \"$*.lsp\" :c-file nil :c-debug nil)" | setarch -RX ../unixport/$(FLISP)
+ 
+ 
+ 
+--- gcl-2.6.14/lsp/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/lsp/makefile	2023-01-17 11:57:22.237144465 -0700
+@@ -25,7 +25,7 @@ LISP=$(PORTDIR)/saved_pre_gcl$(EXE)
+ COMPILE_FILE=$(LISP) $(PORTDIR) -system-p -c-file -data-file -h-file -compile
+ 
+ %.o: $(PORTDIR)/saved_pre_gcl$(EXE) %.lsp
+-	$(COMPILE_FILE) $*
++	setarch -RX $(COMPILE_FILE) $*
+ 
+ all:	$(OBJS) #$(RL_OBJS)
+ 
+--- gcl-2.6.14/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/makefile	2023-01-17 11:57:22.238144438 -0700
+@@ -198,7 +198,7 @@ install1:
+ 	if gcc --version | grep -i mingw >/dev/null 2>&1 ; then if grep -i oncrpc makedefs >/dev/null 2>&1 ; then cp /mingw/bin/oncrpc.dll $(DESTDIR)$(INSTALL_LIB_DIR)/$(PORTDIR); fi ; fi
+ 	cd $(DESTDIR)$(INSTALL_LIB_DIR)/$(PORTDIR) && \
+ 		mv $(FLISP)$(EXE) temp$(EXE) && \
+-		echo '(si::reset-sys-paths "$(INSTALL_LIB_DIR)/")(si::save-system "$(FLISP)$(EXE)")' | ./temp$(EXE) && \
++		echo '(si::reset-sys-paths "$(INSTALL_LIB_DIR)/")(si::save-system "$(FLISP)$(EXE)")' | setarch -RX ./temp$(EXE) && \
+ 		rm -f temp$(EXE)
+ 	if [ -e "unixport/rsym$(EXE)" ] ; then cp unixport/rsym$(EXE) $(DESTDIR)$(INSTALL_LIB_DIR)/unixport/ ; fi
+ #	ln $(SYMB) $(INSTALL_LIB_DIR)/$(PORTDIR)/$(FLISP)$(EXE) \
+--- gcl-2.6.14/pcl/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/pcl/makefile	2023-01-17 11:57:22.238144438 -0700
+@@ -24,15 +24,15 @@ all: $(addsuffix .c,$(AFILES)) $(addsuff
+ 
+ saved_gcl_pcl: ../unixport/saved_gcl$(EXE)
+ 	cp ../h/cmpinclude.h .
+-	echo $(SETUP) '(pcl::compile-pcl)' | $< 
+-	echo $(SETUP) '(pcl::load-pcl)(si::save-system "$@")' | $<
++	echo $(SETUP) '(pcl::compile-pcl)' | setarch -RX $<
++	echo $(SETUP) '(pcl::load-pcl)(si::save-system "$@")' | setarch -RX $<
+ 
+ $(addsuffix .c,$(AFILES)) $(addsuffix .data,$(AFILES))\
+ 	$(addsuffix .h,$(AFILES)) $(addsuffix .lsp,$(GFILES)): \
+ 	$(addsuffix .lisp,$(subst gcl_pcl_impl_low,impl/gcl/gcl_pcl_impl_low,$(FILES)))
+ 	rm -f *.o *gazonk*
+ 	cp ../h/cmpinclude.h .
+-	echo ${SETUP} '(pcl::compile-pcl)' | ../unixport/saved_gcl$(EXE)
++	echo ${SETUP} '(pcl::compile-pcl)' | setarch -RX ../unixport/saved_gcl$(EXE)
+ 	for i in gazonk* ; do \
+ 		j=$$(echo $$i | sed 's,\..*$$,,1');k="gazonk$$(echo $$j | cut -f3 -d\_)";\
+ 		l=$$(echo $$i | sed 's,^.*\.,,1');\
+@@ -57,10 +57,10 @@ remake-sys-files:
+ 	rm -f *.o *gazonk*
+ 	cp ../h/cmpinclude.h .
+ 	echo ${SETUP} '(load "../cmpnew/gcl_collectfn.lsp")(compiler::emit-fn t)' \
+-		'(pcl::compile-pcl)' | ../unixport/saved_gcl$(EXE) ../unixport/
++		'(pcl::compile-pcl)' | setarch -RX ../unixport/saved_gcl$(EXE) ../unixport/
+ 	echo ${SETUP} '(load "../cmpnew/gcl_collectfn.lsp") '\
+ 		'(pcl::load-pcl)(in-package "PCL")(renew-sys-files)' | \
+-		../unixport/saved_gcl$(EXE) ../unixport/
++		setarch -RX ../unixport/saved_gcl$(EXE) ../unixport/
+ 	cp sys-proclaim.lisp xxx
+ 	cat xxx | sed -e "s/COMPILER::CMP-ANON//g" > sys-proclaim.lisp
+ 	rm xxx
+--- gcl-2.6.14/unixport/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/unixport/makefile	2023-01-17 12:03:29.829948386 -0700
+@@ -96,7 +96,7 @@ saved_%:raw_% $(RSYM) sys_init.lsp raw_%
+ #	[ "$(@F)" != "$(FLISP)" ] || echo "#+large-memory-model (setq compiler::*default-large-memory-model-p* t)" >>foo
+ 	echo "(unless si::*quit-tags* (in-package \"USER\")(system:save-system \"$@\"))" >>foo
+ 	j=$$(ar t lib$*.a |grep ^gcl_);[ "$$j" = "" ] || ar x lib$*.a $$j #accelerator
+-	$(PORTDIR)/raw_$*$(EXE) $(PORTDIR)/ -libdir $(GCLDIR)/ < foo
++	setarch -RX $(PORTDIR)/raw_$*$(EXE) $(PORTDIR)/ -libdir $(GCLDIR)/ < foo
+ #       check that saved image can be prelinked
+ 	[ "$(PRELINK_CHECK)" = "" ] || \
+ 		! [ -x /usr/bin/objdump ] || \
+--- gcl-2.6.14/xgcl-2/makefile.orig	2023-01-13 08:48:26.000000000 -0700
++++ gcl-2.6.14/xgcl-2/makefile	2023-01-17 11:57:22.238144438 -0700
+@@ -4,13 +4,13 @@
+ all: objects #docs
+ 
+ objects: $(LISP)
+-	echo '(load "sysdef.lisp")(load "sys-proclaim.lisp")(xlib::compile-xgcl)' | $(LISP)
++	echo '(load "sysdef.lisp")(load "sys-proclaim.lisp")(xlib::compile-xgcl)' | setarch -RX $(LISP)
+ 
+ saved_xgcl: $(LISP)
+-	echo '(load "sysdef.lisp")(load "sys-proclaim.lisp")(xlib::compile-xgcl)(xlib::save-xgcl "$@")' | $(LISP)
++	echo '(load "sysdef.lisp")(load "sys-proclaim.lisp")(xlib::compile-xgcl)(xlib::save-xgcl "$@")' | setarch -RX $(LISP)
+ 
+ sys-proclaim.lisp:
+-	echo '(load "sysdef.lisp")(compiler::emit-fn t)(xlib::compile-xgcl)(compiler::make-all-proclaims "*.fn")' | $(LISP)
++	echo '(load "sysdef.lisp")(compiler::emit-fn t)(xlib::compile-xgcl)(compiler::make-all-proclaims "*.fn")' | setarch -RX $(LISP)
+ 
+ docs: dwdoc/dwdoccontents.html dwdoc.pdf
+ 
