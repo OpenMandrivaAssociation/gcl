@@ -87,7 +87,7 @@ BuildRequires:  pkgconfig(xaw7)
 BuildRequires:  texlive
 BuildRequires:	texlive-l3backend
 BuildRequires:  texlive-texinfo
-#BuildRequires:  tex-ec
+BuildRequires:	texlive-ec
 BuildRequires:  texinfo
 #BuildRequires:  texinfo-tex
 BuildRequires:  emacs-nox
