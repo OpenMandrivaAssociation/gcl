@@ -88,6 +88,7 @@ BuildRequires:  texlive
 BuildRequires:	texlive-l3backend
 BuildRequires:  texlive-texinfo
 BuildRequires:	texlive-ec
+BuildRequires:	texlive-unicode-data
 BuildRequires:  texinfo
 #BuildRequires:  texinfo-tex
 BuildRequires:  emacs-nox
