@@ -84,6 +84,7 @@ BuildRequires:  pkgconfig(readline)
 BuildRequires:  pkgconfig(tcl)
 BuildRequires:  pkgconfig(tk)
 BuildRequires:  pkgconfig(xaw7)
+BuildRequires:  util-linux
 BuildRequires:  texlive
 BuildRequires:	texlive-l3backend
 BuildRequires:  texlive-texinfo
