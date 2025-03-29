@@ -26,7 +26,7 @@
 Summary:        GNU Common Lisp
 Name:           gcl
 Version:        2.6.14
-Release:        2
+Release:        3
 License:        GPL+ and LGPLv2+
 URL:            https://www.gnu.org/software/gcl/
 Source0:        https://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
