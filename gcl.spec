@@ -26,7 +26,7 @@
 Summary:        GNU Common Lisp
 Name:           gcl
 Version:        2.6.14
-Release:        3
+Release:        4
 License:        GPL+ and LGPLv2+
 URL:            https://www.gnu.org/software/gcl/
 Source0:        https://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
@@ -35,10 +35,24 @@ Source1:        gcl.el
 # Upstream builds point releases for Debian, and uploads the patches directly
 # to the Debian Patch Tracker, but does not spin new tarballs.  These are the
 # upstream patches from https://sources.debian.org/patches/gcl/.
-Patch0:         https://sources.debian.org/data/main/g/gcl/2.6.14-4/debian/patches/Version_2_6_15pre1.patch
-Patch1:         https://sources.debian.org/data/main/g/gcl/2.6.14-4/debian/patches/Version_2_6_15pre2.patch
-Patch2:         https://sources.debian.org/data/main/g/gcl/2.6.14-4/debian/patches/Version_2_6_15pre3.patch
-	
+Patch1:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre1
+Patch2:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre2
+Patch3:		https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre3
+Patch4:		https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre4
+Patch5:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre5
+Patch6:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre6
+Patch7:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre7
+Patch8:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre8
+Patch9:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre9
+Patch10:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre10
+#Patch11:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre11
+#Patch12:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre12
+Patch13:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre13
+Patch14:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre14
+Patch15:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre15
+Patch16:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre16
+Patch17:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre17
+Patch18:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre18
 
 ### Fedora patches
 	
