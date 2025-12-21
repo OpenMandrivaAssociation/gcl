@@ -90,6 +90,11 @@ Patch507:       %{name}-2.6.12-infrastructure.patch
 # functionality is available only when _GNU_SOURCE is defined.
 Patch508:       %{name}-2.6.12-extension.patch
 
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:  binutils-devel
 BuildRequires:  bzip2
 BuildRequires:  gmp-devel
