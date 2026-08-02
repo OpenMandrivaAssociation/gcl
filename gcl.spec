@@ -25,8 +25,8 @@
 
 Summary:        GNU Common Lisp
 Name:           gcl
-Version:        2.6.14
-Release:        4
+Version:        2.7.1
+Release:        1
 License:        GPL+ and LGPLv2+
 URL:            https://www.gnu.org/software/gcl/
 Source0:        https://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
@@ -35,24 +35,24 @@ Source1:        gcl.el
 # Upstream builds point releases for Debian, and uploads the patches directly
 # to the Debian Patch Tracker, but does not spin new tarballs.  These are the
 # upstream patches from https://sources.debian.org/patches/gcl/.
-Patch1:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre1
-Patch2:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre2
-Patch3:		https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre3
-Patch4:		https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre4
-Patch5:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre5
-Patch6:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre6
-Patch7:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre7
-Patch8:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre8
-Patch9:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre9
-Patch10:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre10
+Patch1:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre1
+Patch2:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre2
+Patch3:		https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre3
+Patch4:		https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre4
+Patch5:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre5
+Patch6:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre6
+Patch7:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre7
+Patch8:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre8
+Patch9:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre9
+Patch10:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre10
 #Patch11:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre11
 #Patch12:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre12
-Patch13:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre13
-Patch14:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre14
-Patch15:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre15
-Patch16:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre16
-Patch17:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre17
-Patch18:         https://sources.debian.org/data/main/g/gcl/2.6.14-19/debian/patches/Version_2_6_15pre18
+Patch13:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre13
+Patch14:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre14
+Patch15:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre15
+Patch16:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre16
+Patch17:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre17
+Patch18:         https://sources.debian.org/data/main/g/gcl/2.7.1-19/debian/patches/Version_2_6_15pre18
 
 ### Fedora patches
 	
@@ -154,35 +154,27 @@ Emacs mode for interacting with GCL
 %prep
 %autosetup -p1
 
-# Don't insert line numbers into cmpinclude.h; the compiler gets confused
-#sed -i 's,\($(CC) -E\) -I,\1 -P -I,' makefile
+# ASLR must be off for GCL's memory management.  gcl-2.6.12-libselinux.patch
+# wraps the launcher and build recipes with setarch -RX; reinforce the
+# installed launcher here in case the patch path drifts.
+sed -i 's,^exec ,exec %{_bindir}/setarch -RX ,' bin/gcl.in
+# Avoid double-wrapping if the patch already inserted setarch
+sed -i 's,setarch -RX setarch -RX,setarch -RX,g' bin/gcl.in
 
-# The binary MUST be run with address randomization off.  The main() function
-# has code to accomplish that, but it does not run early enough.  Ensure that
-# randomization is off before GCL even starts.
-sed -i 's,echo exec,& %{_bindir}/setarch -R,' makefile
- 
 # Ensure the frame pointer doesn't get added back
 sed -i 's/"-fomit-frame-pointer"/""/' configure
- 
-# Fix a path in the launch script
-sed -i 's|/usr/lib/tk|%{_datadir}/tk|' debian/gcl.sh
- 
-# Silence warnings about the obsolescence of egrep and fgrep
-sed -i 's/egrep/grep -E/' o/egrep-def
-sed -i 's/fgrep/grep -F/' configure.in configure mp/makefile o/unexec.c \
-    o/unexec-19.29.c xbin/notify
- 
+
+# Silence warnings about the obsolescence of fgrep
+sed -i 's/fgrep/grep -F/' configure.ac configure
+
 # Get a version of texinfo.tex that works with the installed version of texinfo
-#cp -p %{_texmf_main}/tex/texinfo/texinfo.tex info
-cp -p %{_datadir}/texmf-dist/tex/texinfo/texinfo.tex info
- 
+cp -p %{_datadir}/texmf-dist/tex/texinfo/texinfo.tex .
+
 # The archive is so full of spurious executable bits that we just remove them
 # all here, then add back the ones that should exist
 find . -type f -perm /0111 | xargs chmod a-x
-chmod a+x add-defs add-defs1 config.guess config.sub configure install.sh
-chmod a+x bin/info bin/info1 gcl-tk/gcltksrv.in gcl-tk/ngcltksrv mp/gcclab
-chmod a+x o/egrep-def utils/replace xbin/*
+chmod a+x config.guess config.sub configure install-sh compile missing
+chmod a+x gcl-tk/gcltksrv.in xbin/* bin/gcl.in 2>/dev/null || :
 
 %build
 export CC=gcc

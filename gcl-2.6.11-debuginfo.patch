@@ -1,21 +1,23 @@
---- gcl/o/makefile.orig	2022-08-08 14:54:29.976965708 -0600
-+++ gcl/o/makefile	2022-08-08 15:09:45.995300639 -0600
-@@ -48,7 +48,6 @@ prelink.o: prelink.c $(DECL)
- %.o: %.d $(DECL)
- 	$(DPP) $*
- 	$(CC) -c $(CFLAGS) $(DEFS) $*.c $(AUX_INFO)
--	rm $*.c
+diff -urN a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2025-04-11 06:57:43.582839865 +0200
++++ b/Makefile.am	2026-08-02 18:29:55.590659459 +0200
+@@ -529,6 +529,7 @@
+ 	[ -d $(@D) ] || mkdir -p $(@D)
+ 	$(word 1,$|) -compile $< -o $@
  
- boot.ini: boot.c grab_defs
- 	$(CC) -DINICOMP -DNO_DEFUN -DNO_BOOT_H $(CFLAGS) $(DEFS) -E $*.c |\
---- gcl/xgcl-2/sysdef.lisp.orig	2022-08-08 14:54:39.488988419 -0600
-+++ gcl/xgcl-2/sysdef.lisp	2022-08-08 15:09:45.995300639 -0600
-@@ -54,7 +54,7 @@
- 	    (progn (print "qemu/readdir issue still present")
- 		   (mapcar (lambda (x) (truename (merge-pathnames ".c" x))) '("XStruct-4" "general-c" "Xutil-2" "Events" "XStruct-2")))))
-   (mapc (lambda (x)
--	  (compile-file (format nil "~a.lsp" x) :system-p t)) *files*))
-+	  (compile-file (format nil "~a.lsp" x) :c-file t :h-file t :system-p t)) *files*))
++# Keep generated .c from .d for debuginfo (do not delete after compile)
+ %.c: %.d | bin/dpp
+ 	bin/dpp $< $@
+ 
+diff -urN a/xgcl-2/sysdef.lisp b/xgcl-2/sysdef.lisp
+--- a/xgcl-2/sysdef.lisp	2024-01-29 00:10:50.820392725 +0100
++++ b/xgcl-2/sysdef.lisp	2026-08-02 18:29:55.590378395 +0200
+@@ -59,7 +59,7 @@
+ 	(compiler::*default-data-file* t)
+ 	(compiler::*default-system-p* t))
+     (mapc (lambda (x)
+-	    (compile-file (format nil "~a.lsp" x) :system-p t))
++	    (compile-file (format nil "~a.lsp" x) :c-file t :h-file t :system-p t))
+ 	  *files*)))
  
  
- (defun load-xgcl()

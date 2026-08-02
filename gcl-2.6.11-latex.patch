@@ -1,5 +1,7 @@
---- gcl/xgcl-2/dwdoc.tex.orig	2014-10-23 15:29:00.000000000 -0600
-+++ gcl/xgcl-2/dwdoc.tex	2020-01-31 11:55:24.513582958 -0700
+diff --git a/xgcl-2/dwdoc.tex b/xgcl-2/dwdoc.tex
+index a94ebc3..b2172f5 100644
+--- a/xgcl-2/dwdoc.tex
++++ b/xgcl-2/dwdoc.tex
 @@ -1,19 +1,16 @@
  % dwdoc.tex          Gordon S. Novak Jr.
  % 08 Oct 92; 08 Oct 93; 16 Nov 94; 05 Jan 95; 25 Jan 06; 26 Jan 06; 08 Dec 08
@@ -1079,7 +1081,7 @@
  under the heading Software Demos.
  
  
-@@ -760,31 +763,31 @@ This software allows a Lisp program to b
+@@ -760,31 +763,31 @@ This software allows a Lisp program to be used interactively within
  a web page.  There are two approaches, either using an X server on
  the computer of the person viewing the web page, or using WeirdX, a
  Java program that emulates an X server.  Details can be found at:
